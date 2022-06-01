@@ -15,5 +15,6 @@ int main()
   sei();
 
   while(1) {
+    clock_main();
   }
 }
