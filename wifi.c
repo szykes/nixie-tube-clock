@@ -1,8 +1,25 @@
 #include "wifi.h"
 
+volatile char red_ratio = 10;
+volatile char green_ratio = 150;
+volatile char blue_ratio = 120;
+
 void wifi_init(void) {
 
 }
+
+inline char wifi_get_led_red_ratio(void) {
+  return red_ratio;
+}
+
+inline char wifi_get_led_green_ratio(void) {
+  return green_ratio;
+}
+
+inline char wifi_get_led_blue_ratio(void) {
+  return red_ratio;
+}
+
 
 #if 0
  char data[2][26]={
