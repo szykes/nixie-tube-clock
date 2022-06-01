@@ -4,22 +4,46 @@
 #include <avr/interrupt.h>
 
 #include "gpio.h"
+#include "wifi.h"
+#include "clock.h"
 
-ISR(TIMER1_OVF_vect) {
-  if(PORTB)
-    gpio_reset_led_red();
-  else
-    gpio_set_led_red();
+#define MAX_CNT 250 // 31 250 Hz to 125 Hz
 
-  TCNT1 = 0xFF00;
+ISR(TIMER0_OVF_vect) {
+  static char cnt = 0;
+
+  if(cnt == MAX_CNT) {
+    cnt = 0;
+    //gpio_set_led_red();
+    gpio_set_led_green();
+    gpio_set_led_blue();
+    clock_timer_interrupt();
+  }
+
+  if(cnt == wifi_get_led_red_ratio()) {
+    //gpio_reset_led_red();
+  }
+
+  if(cnt == wifi_get_led_green_ratio()) {
+    gpio_reset_led_green();
+  }
+
+  if(cnt == wifi_get_led_blue_ratio()) {
+    gpio_reset_led_blue();
+  }
+
+  cnt++;
+
+  TCNT0 = 0xFF;
 }
 
 void led_init(void) {
-  TCCR1A = 0x00;
-  /*  */
-  TCCR1B = (1 << CS10);
+  // TCCR0A = 0x00;
 
-  TCNT1 = 0xFF00;
+  // 8 MHz internal RC osc. -> timer input: 31 250 Hz
+  TCCR0B = (1 << CS02);
 
-  TIMSK1 = (1 << TOIE1);
+  TCNT0 = 0xFF;
+
+  TIMSK0 = (1 << TOIE0);
 }
