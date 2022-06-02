@@ -1,4 +1,5 @@
 #include <avr/interrupt.h>
+#include <avr/wdt.h>
 
 #include "gpio.h"
 #include "wifi.h"
@@ -11,10 +12,12 @@ int main()
   wifi_init();
   led_init();
   clock_init();
+  wdt_enable(WDTO_250MS);
 
   sei();
 
   while(1) {
     clock_main();
+    wdt_reset();
   }
 }
