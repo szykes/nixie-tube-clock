@@ -9,19 +9,21 @@
 
 #define MAX_CNT 250 // 31 250 Hz to 125 Hz
 
+#define TIMER_INIT_CNT 0xFF
+
 ISR(TIMER0_OVF_vect) {
   static char cnt = 0;
 
   if(cnt == MAX_CNT) {
     cnt = 0;
-    //gpio_set_led_red();
+    gpio_set_led_red();
     gpio_set_led_green();
     gpio_set_led_blue();
     clock_timer_interrupt();
   }
 
   if(cnt == wifi_get_led_red_ratio()) {
-    //gpio_reset_led_red();
+    gpio_reset_led_red();
   }
 
   if(cnt == wifi_get_led_green_ratio()) {
@@ -34,7 +36,7 @@ ISR(TIMER0_OVF_vect) {
 
   cnt++;
 
-  TCNT0 = 0xFF;
+  TCNT0 = TIMER_INIT_CNT;
 }
 
 void led_init(void) {
@@ -43,7 +45,7 @@ void led_init(void) {
   // 8 MHz internal RC osc. -> timer input: 31 250 Hz
   TCCR0B = (1 << CS02);
 
-  TCNT0 = 0xFF;
+  TCNT0 = TIMER_INIT_CNT;
 
   TIMSK0 = (1 << TOIE0);
 }
