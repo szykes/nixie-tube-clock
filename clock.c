@@ -215,6 +215,15 @@ static void send_spi_time_data(size_t idx) {
   SPDR = time_raw_data[idx];
 }
 
+static void dark_period(void) {
+  if((time_data.hour_10 <= 2) && (time_data.hour_1 <= 2) && (time_data.min_10 <= 3) &&
+     (time_data.hour_10 == 0) && (time_data.hour_1 >= 6) && (time_data.min_10 >= 2)) {
+    gpio_reset_blanking();
+  } else {
+    gpio_set_blanking();
+  }
+}
+
 ISR(SPI_STC_vect) {
   static char time_data_idx = 0;
 
@@ -271,4 +280,6 @@ void clock_main(void) {
 
     send_spi_time_data(0);
   }
+
+  dark_period();
 }
