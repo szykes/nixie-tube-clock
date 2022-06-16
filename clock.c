@@ -8,6 +8,7 @@
 
 #include "gpio.h"
 #include "led.h"
+#include "wifi.h"
 
 /*
 time_data[0]
@@ -248,6 +249,7 @@ void clock_timer_interrupt(void) {
   if(cnt >= ONE_SEC_CNT) {
     cnt = 0;
     increment_time = true;
+    wifi_timer_interrupt();
   }
 
   if(cnt == ONE_SEC_CNT / 2) {

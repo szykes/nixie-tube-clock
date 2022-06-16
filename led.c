@@ -20,7 +20,6 @@ ISR(TIMER0_OVF_vect) {
     gpio_set_led_green();
     gpio_set_led_blue();
     clock_timer_interrupt();
-    wifi_timer_interrupt();
   }
 
   if(cnt == wifi_get_led_red_ratio()) {

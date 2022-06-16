@@ -1,5 +1,6 @@
 #include "wifi.h"
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,12 +15,48 @@
 
 #include "gpio.h"
 
+#define AT_CMD_TIMER_STOP (-1)
+#define AT_CMD_TIMER_TIMEOUT 5
+
+typedef enum {
+  NONE,
+  AT,            // AT
+  SET_CWMODE,    // AT+CWMODE=
+  SET_CWJAP,     // AT+CWJAP=
+  SET_CWQAP,     // AT+CWQAP
+  SET_CIPMUX,    // AT+CIPMUX=
+  SET_CIPSERVER, // AT+CIPSERVER=
+} at_cmd_type;
+
 static volatile char red_ratio = 10;
 static volatile char green_ratio = 150;
 static volatile char blue_ratio = 120;
 
 static volatile char recv_buffer[32];
 static volatile size_t recv_buffer_len;
+
+static volatile char at_cmd_timer = -1;
+static volatile bool esp_reset = false;
+
+static at_cmd_type sent_at_cmd = NONE;
+
+static void at_cmd_response_timer_start(char timeout_sec) {
+  at_cmd_timer = timeout_sec;
+}
+
+static void at_cmd_response_timer_stop(void) {
+  at_cmd_timer = AT_CMD_TIMER_STOP;
+}
+
+static void at_cmd_response_timer_counter(void) {
+  if(at_cmd_timer >= 0) {
+    at_cmd_timer--;
+    if(at_cmd_timer <= 0) {
+      at_cmd_timer = AT_CMD_TIMER_STOP;
+      esp_reset = true;
+    }
+  }
+}
 
 static void send_data_exec(char data) {
   while (!(UCSR0A & (1 << UDRE0)));
@@ -37,9 +74,36 @@ static void send_data(const char *data, size_t len) {
     send_data_exec('\r');
     send_data_exec('\n');
   }
+
+  at_cmd_response_timer_start();
 }
 
-static void parse_recv_buffer(void) {
+static void parse_response(const char *buf, size_t len) {
+  switch (buf[0]) {
+  case 'O': // assumed response: OK
+    break;
+  case 'E': // assumed response: ERROR
+    break;
+  case 'W': // assumed response: WIFI*
+      if (recv_buffer_len >= 2 && recv_buffer[0] == 'W' && recv_buffer[1] == 'I') {
+    cli();
+    recv_buffer_len = 0;
+    sei();
+    const char at[] = "AT";
+    send_data(at, sizeof(at));
+  }
+    break;
+  case 'C': // assumed response: CONNECT
+    break;
+  case '+': // assumed response: +*
+    break;
+  default:
+    break;
+  }
+
+}
+
+static void read_recv_buffer(void) {
   char buf[sizeof(recv_buffer)];
   size_t len = 0;
 
@@ -61,28 +125,9 @@ static void parse_recv_buffer(void) {
     return;
   }
 
-  switch (buf[0]) {
-  case 'O': // assumed response: OK
-    break;
-  case 'E': // assumed response: ERROR
-    break;
-  case 'W': // assumed response: WIFI*
-    break;
-  case 'C': // assumed response: CONNECT
-    break;
-  case '+': // assumed response: +*
-    break;
-  default:
-    break;
-  }
+  at_cmd_response_timer_stop();
 
-  if (recv_buffer_len >= 2 && recv_buffer[0] == 'W' && recv_buffer[1] == 'I') {
-    cli();
-    recv_buffer_len = 0;
-    sei();
-    const char at[] = "AT";
-    send_data(at, sizeof(at));
-  }
+  parse_response(buf, len);
 }
 
 ISR(USART_RX_vect) {
@@ -240,8 +285,7 @@ void wifi_init(void) {
 
 }
 
-void wifi_timer_interrupt(void) {
-}
+void wifi_timer_interrupt(void) { at_cmd_response_timer_counter(); }
 
 char wifi_get_led_red_ratio(void) {
   return red_ratio;
@@ -256,6 +300,11 @@ char wifi_get_led_blue_ratio(void) {
 }
 
 void wifi_main(void) {
+  if(esp_reset) {
+    gpio_esp_reset();
+    esp_reset = false;
+  }
+
   static int once;
   if(!once) {
     const char at[] = "AT";
@@ -264,7 +313,7 @@ void wifi_main(void) {
   }
 
   if (recv_buffer_len != 0) {
-    parse_recv_buffer();
+    read_recv_buffer();
   }
 }
 
