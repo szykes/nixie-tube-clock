@@ -5,7 +5,7 @@
 
 inline void gpio_init(void) {
   DDRB = (0x7 << 1);
-  DDRB |= (1 << PB3) | (1 << PB5); // MOSI, SCK
+  DDRB |= (1 << DDB3) | (1 << DDB5); // MOSI, SCK
 }
 
 inline void gpio_set_led_red(void) {

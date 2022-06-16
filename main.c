@@ -17,6 +17,7 @@ int main()
   sei();
 
   while(1) {
+    wifi_main();
     clock_main();
     wdt_reset();
   }
