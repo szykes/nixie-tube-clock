@@ -4,15 +4,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 
 project(nixie-tube-clock)
 
-# 8MHz, this should match the crystal on your board,
-# I use 8MHz and 3.3V for the lowest power consumption
 set(F_CPU 7372800UL)
+
 # CPU, you can find the list here:
 # https://gcc.gnu.org/onlinedocs/gcc/AVR-Options.html
 set(MCU_GCC atmega88pa)
 set(MCU_DUDE m88p)
-# Default Baudrate for UART, read avr include/util/setbaud.h for usage
-set(BAUD 115200)
 # The programmer to use, read avrdude manual for list
 set(PROG_TYPE avrispmkII)
 
@@ -40,7 +37,6 @@ add_executable(nixie-tube-clock
 
 target_compile_definitions(nixie-tube-clock PUBLIC
     -DF_CPU=${F_CPU}
-    -DBAUD=${BAUD}
     -DWIFI_SSID=${WIFI_SSID}
     -DWIFI_PASSWD=${WIFI_PASSWD}
 )

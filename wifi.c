@@ -8,6 +8,8 @@
 #include <avr/interrupt.h>
 
 #include <util/delay.h>
+
+#define BAUD 115200
 #include <util/setbaud.h>
 
 #include "gpio.h"

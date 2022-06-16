@@ -7,8 +7,7 @@
 #include <avr/interrupt.h>
 
 #include "gpio.h"
-
-#define MAX_CNT 126
+#include "led.h"
 
 /*
 time_data[0]
@@ -246,12 +245,12 @@ void clock_init(void) {
 void clock_timer_interrupt(void) {
   static char cnt = 0;
 
-  if(cnt >= MAX_CNT) {
+  if(cnt >= ONE_SEC_CNT) {
     cnt = 0;
     increment_time = true;
   }
 
-  if(cnt == 62) {
+  if(cnt == ONE_SEC_CNT / 2) {
     resetting_glimm = true;
   }
 

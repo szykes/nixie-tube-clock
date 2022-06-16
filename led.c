@@ -7,7 +7,7 @@
 #include "wifi.h"
 #include "clock.h"
 
-#define MAX_CNT 250 // 31 250 Hz to 125 Hz
+#define MAX_CNT 240 // 28 800 Hz to 120 Hz
 
 #define TIMER_INIT_CNT 0xFF
 
@@ -43,7 +43,7 @@ ISR(TIMER0_OVF_vect) {
 void led_init(void) {
   // TCCR0A = 0x00;
 
-  // 8 MHz internal RC osc. -> timer input: 31 250 Hz
+  // 7 372 800 Hz internal RC osc. / 256 -> timer input: 28 800 Hz
   TCCR0B = (1 << CS02);
 
   TCNT0 = TIMER_INIT_CNT;
