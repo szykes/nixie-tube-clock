@@ -1,4 +1,5 @@
 #include "wifi.h"
+#include "clock.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -20,13 +21,13 @@
 #define AT_CMD_TIMER_LONG    10
 
 typedef enum {
-  AT_CMD_TYPE_NONE,
+  AT_CMD_TYPE_NONE = 0,
   AT_CMD_TYPE_AT,            // AT
   AT_CMD_TYPE_SET_CWMODE,    // AT+CWMODE=
   AT_CMD_TYPE_SET_CWJAP,     // AT+CWJAP=
   AT_CMD_TYPE_SET_CIPMUX,    // AT+CIPMUX=
   AT_CMD_TYPE_SET_CIPSERVER, // AT+CIPSERVER=
-  AT_CMD_TYPE_SET_CIPSEND,   // AT+CIPSEND=
+  AT_CMD_TYPE_SET_CIPSTART,   // AT+CIPSTAR=
 } at_cmd_type;
 
 typedef void (*at_cmd_response_handler_func)(const char *buf, size_t len);
@@ -128,16 +129,7 @@ static void send_establish_tcp_connection(void) {
   const char cmd[] = "AT+CIPSTART=0,\"TCP\",\"" TIME_SERVER_IP "\"," TIME_SERVER_PORT;
   send_data(cmd, sizeof(cmd));
 
-  sent_at_cmd = AT_CMD_TYPE_SET_CIPSERVER;
-
-  esp_timer_start(AT_CMD_TIMER_DEFAULT);
-}
-
-static void send_request_time(void) {
-  const char cmd[] = "AT+CIPSEND=1,0";
-  send_data(cmd, sizeof(cmd));
-
-  sent_at_cmd = AT_CMD_TYPE_SET_CIPSEND;
+  sent_at_cmd = AT_CMD_TYPE_SET_CIPSTART;
 
   esp_timer_start(AT_CMD_TIMER_DEFAULT);
 }
@@ -163,8 +155,6 @@ static void response_handler_connect_to_ap(const char *buf, size_t len) {
     esp_timer_stop();
 
     send_set_multiple_connections_mode();
-  } else if(buf[0] == 'W') {
-    sent_at_cmd = AT_CMD_TYPE_SET_CIPSERVER;
   }
 }
 
@@ -177,27 +167,38 @@ static void response_handler_set_multiple_connections_mode(const char *buf, size
 }
 
 static void response_handler_create_tcp_server(const char *buf, size_t len) {
-    if (buf[0] == 'O') { // response OK
+  if (buf[0] == 'O') { // response OK
     esp_timer_stop();
 
-    send_request_time();
+    send_establish_tcp_connection();
   }
 }
 
-static void response_handler_request_time(const char *buf, size_t len) {
-    if (buf[0] == 'O') { // response OK
+static void response_handler_establish_tcp_connection(const char *buf, size_t len) {
+  if (buf[0] == 'O') { // response OK
     esp_timer_stop();
+  } else if (buf[0] == '+' && buf[1] == 'I' && buf[2] == 'P' && buf[3] == 'D') {
+    // example event: +IPD,0,6:1346390,CLOSED
+
+    time_st accurate_time;
+    accurate_time.hour_10 = buf[9] - '0';
+    accurate_time.hour_1 = buf[10] - '0';
+    accurate_time.min_10 = buf[11] - '0';
+    accurate_time.min_1 = buf[12] - '0';
+    accurate_time.sec_10 = buf[13] - '0';
+    accurate_time.sec_1 = buf[14] - '0';
+    clock_update_time(accurate_time);
   }
 }
 
 static at_cmd_response_handler_func at_cmd_response_handler[] = {
-    NULL,
-    response_handler_alive_check,
-    response_handler_set_wifi_mode,
-    response_handler_connect_to_ap,
-    response_handler_set_multiple_connections_mode,
-    response_handler_create_tcp_server,
-    response_handler_request_time,
+  /* AT_CMD_TYPE_NONE          */ NULL,
+  /* AT_CMD_TYPE_AT            */ response_handler_alive_check,
+  /* AT_CMD_TYPE_SET_CWMODE    */ response_handler_set_wifi_mode,
+  /* AT_CMD_TYPE_SET_CWJAP     */ response_handler_connect_to_ap,
+  /* AT_CMD_TYPE_SET_CIPMUX    */ response_handler_set_multiple_connections_mode,
+  /* AT_CMD_TYPE_SET_CIPSERVER */ response_handler_create_tcp_server,
+  /* AT_CMD_TYPE_SET_CIPSTART  */ response_handler_establish_tcp_connection,
 };
 
 static void parse_response(const char *buf, size_t len) {
