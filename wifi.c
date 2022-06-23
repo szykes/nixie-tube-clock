@@ -15,18 +15,21 @@
 
 #include "gpio.h"
 
-#define AT_CMD_TIMER_STOP (-1)
-#define AT_CMD_TIMER_TIMEOUT 5
+#define AT_CMD_TIMER_STOP    0
+#define AT_CMD_TIMER_DEFAULT 2
+#define AT_CMD_TIMER_LONG    10
 
 typedef enum {
-  NONE,
-  AT,            // AT
-  SET_CWMODE,    // AT+CWMODE=
-  SET_CWJAP,     // AT+CWJAP=
-  SET_CWQAP,     // AT+CWQAP
-  SET_CIPMUX,    // AT+CIPMUX=
-  SET_CIPSERVER, // AT+CIPSERVER=
+  AT_CMD_TYPE_NONE,
+  AT_CMD_TYPE_AT,            // AT
+  AT_CMD_TYPE_SET_CWMODE,    // AT+CWMODE=
+  AT_CMD_TYPE_SET_CWJAP,     // AT+CWJAP=
+  AT_CMD_TYPE_SET_CIPMUX,    // AT+CIPMUX=
+  AT_CMD_TYPE_SET_CIPSERVER, // AT+CIPSERVER=
+  AT_CMD_TYPE_SET_CIPSEND,   // AT+CIPSEND=
 } at_cmd_type;
+
+typedef void (*at_cmd_response_handler_func)(const char *buf, size_t len);
 
 static volatile char red_ratio = 10;
 static volatile char green_ratio = 150;
@@ -35,24 +38,24 @@ static volatile char blue_ratio = 120;
 static volatile char recv_buffer[32];
 static volatile size_t recv_buffer_len;
 
-static volatile char at_cmd_timer = -1;
+static volatile char esp_timer = -1;
 static volatile bool esp_reset = false;
 
-static at_cmd_type sent_at_cmd = NONE;
+static at_cmd_type sent_at_cmd = AT_CMD_TYPE_NONE;
 
-static void at_cmd_response_timer_start(char timeout_sec) {
-  at_cmd_timer = timeout_sec;
+static void esp_timer_start(char timeout_sec) {
+  esp_timer = timeout_sec;
 }
 
-static void at_cmd_response_timer_stop(void) {
-  at_cmd_timer = AT_CMD_TIMER_STOP;
+static void esp_timer_stop(void) {
+  esp_timer = AT_CMD_TIMER_STOP;
 }
 
-static void at_cmd_response_timer_counter(void) {
-  if(at_cmd_timer >= 0) {
-    at_cmd_timer--;
-    if(at_cmd_timer <= 0) {
-      at_cmd_timer = AT_CMD_TIMER_STOP;
+static void esp_timer_counter(void) {
+  if (esp_timer > AT_CMD_TIMER_STOP) {
+    esp_timer--;
+    if (esp_timer <= AT_CMD_TIMER_STOP) {
+      esp_timer = AT_CMD_TIMER_STOP;
       esp_reset = true;
     }
   }
@@ -74,33 +77,139 @@ static void send_data(const char *data, size_t len) {
     send_data_exec('\r');
     send_data_exec('\n');
   }
-
-  at_cmd_response_timer_start();
 }
 
-static void parse_response(const char *buf, size_t len) {
-  switch (buf[0]) {
-  case 'O': // assumed response: OK
-    break;
-  case 'E': // assumed response: ERROR
-    break;
-  case 'W': // assumed response: WIFI*
-      if (recv_buffer_len >= 2 && recv_buffer[0] == 'W' && recv_buffer[1] == 'I') {
-    cli();
-    recv_buffer_len = 0;
-    sei();
-    const char at[] = "AT";
-    send_data(at, sizeof(at));
+static void send_alive_check(void) {
+  const char cmd[] = "AT";
+  send_data(cmd, sizeof(cmd));
+
+  sent_at_cmd = AT_CMD_TYPE_AT;
+
+  esp_timer_start(AT_CMD_TIMER_DEFAULT);
+}
+
+static void send_set_wifi_mode(void) {
+  const char cmd[] = "AT+CWMODE=1"; // set Station mode
+  send_data(cmd, sizeof(cmd));
+
+  sent_at_cmd = AT_CMD_TYPE_SET_CWMODE;
+
+  esp_timer_start(AT_CMD_TIMER_DEFAULT);
+}
+
+static void send_connect_to_ap(void) {
+  const char cmd[] = "AT+CWJAP=\"" WIFI_SSID "\",\"" WIFI_PASSWD "\""; // connect to AP
+  send_data(cmd, sizeof(cmd));
+
+  sent_at_cmd = AT_CMD_TYPE_SET_CWJAP;
+
+  esp_timer_start(AT_CMD_TIMER_LONG);
+}
+
+static void send_set_multiple_connections_mode(void) {
+  const char cmd[] = "AT+CIPMUX=1"; // set multiple connections mode
+  send_data(cmd, sizeof(cmd));
+
+  sent_at_cmd = AT_CMD_TYPE_SET_CIPMUX;
+
+  esp_timer_start(AT_CMD_TIMER_DEFAULT);
+}
+
+static void send_create_tcp_server(void) {
+  const char cmd[] = "AT+CIPSERVER=1," ESP_TCP_PORT; // create server
+  send_data(cmd, sizeof(cmd));
+
+  sent_at_cmd = AT_CMD_TYPE_SET_CIPSERVER;
+
+  esp_timer_start(AT_CMD_TIMER_DEFAULT);
+}
+
+static void send_establish_tcp_connection(void) {
+  const char cmd[] = "AT+CIPSTART=0,\"TCP\",\"" TIME_SERVER_IP "\"," TIME_SERVER_PORT;
+  send_data(cmd, sizeof(cmd));
+
+  sent_at_cmd = AT_CMD_TYPE_SET_CIPSERVER;
+
+  esp_timer_start(AT_CMD_TIMER_DEFAULT);
+}
+
+static void send_request_time(void) {
+  const char cmd[] = "AT+CIPSEND=1,0";
+  send_data(cmd, sizeof(cmd));
+
+  sent_at_cmd = AT_CMD_TYPE_SET_CIPSEND;
+
+  esp_timer_start(AT_CMD_TIMER_DEFAULT);
+}
+
+static void response_handler_alive_check(const char *buf, size_t len) {
+  if(buf[0] == 'O') { // response OK
+    esp_timer_stop();
+
+    send_set_wifi_mode();
   }
-    break;
-  case 'C': // assumed response: CONNECT
-    break;
-  case '+': // assumed response: +*
-    break;
-  default:
-    break;
+}
+
+static void response_handler_set_wifi_mode(const char *buf, size_t len) {
+  if (buf[0] == 'O') { // response OK
+    esp_timer_stop();
+
+    send_connect_to_ap();
+  }
+}
+
+static void response_handler_connect_to_ap(const char *buf, size_t len) {
+  if (buf[0] == 'O') { // response OK
+    esp_timer_stop();
+
+    send_set_multiple_connections_mode();
+  } else if(buf[0] == 'W') {
+    sent_at_cmd = AT_CMD_TYPE_SET_CIPSERVER;
+  }
+}
+
+static void response_handler_set_multiple_connections_mode(const char *buf, size_t len) {
+  if (buf[0] == 'O') { // response OK
+    esp_timer_stop();
+
+    send_create_tcp_server();
+  }
+}
+
+static void response_handler_create_tcp_server(const char *buf, size_t len) {
+    if (buf[0] == 'O') { // response OK
+    esp_timer_stop();
+
+    send_request_time();
+  }
+}
+
+static void response_handler_request_time(const char *buf, size_t len) {
+    if (buf[0] == 'O') { // response OK
+    esp_timer_stop();
+  }
+}
+
+static at_cmd_response_handler_func at_cmd_response_handler[] = {
+    NULL,
+    response_handler_alive_check,
+    response_handler_set_wifi_mode,
+    response_handler_connect_to_ap,
+    response_handler_set_multiple_connections_mode,
+    response_handler_create_tcp_server,
+    response_handler_request_time,
+};
+
+static void parse_response(const char *buf, size_t len) {
+  if(buf[0] == 'r' && buf[1] == 'e' && buf[2] == 'a' && buf[3] == 'd' && buf[4] == 'y') {
+    esp_timer_stop();
+    send_alive_check();
+    return;
   }
 
+  if (sent_at_cmd != AT_CMD_TYPE_NONE) {
+    (*at_cmd_response_handler[sent_at_cmd])(buf, len);
+  }
 }
 
 static void read_recv_buffer(void) {
@@ -125,9 +234,10 @@ static void read_recv_buffer(void) {
     return;
   }
 
-  at_cmd_response_timer_stop();
-
   parse_response(buf, len);
+
+  recv_buffer_len = 0;
+  len = 0;
 }
 
 ISR(USART_RX_vect) {
@@ -138,9 +248,8 @@ ISR(USART_RX_vect) {
 
   if(idx < (sizeof(recv_buffer) - 1)) {
     buf[idx] = temp;
+    idx++;
   }
-
-  idx++;
 
   if(temp == '\n') {
     size_t i;
@@ -170,122 +279,12 @@ void wifi_init(void) {
 
   gpio_esp_reset();
 
-  // const char at[] = "AT";
-  //send_data(at, sizeof(at));
-
-  //_delay_ms(100);
-
-#if 0
-  const char atgmr[] = "AT+GMR\r\n";
-  send_data(atgmr, sizeof(atgmr));
-
-  _delay_ms(100);
-#endif
-
-#if 0
-  const char atciobaud[] = "AT+CIOBAUD?\r\n";
-  send_data(atciobaud, sizeof(atciobaud));
-
-  _delay_ms(100);
-#endif
-
-#if 0
-  const char atcwmodeset[] = "AT+CWMODE=1\r\n";
-  send_data(atcwmodeset, sizeof(atcwmodeset));
-
-  _delay_ms(100);
-  _delay_ms(100);
-  _delay_ms(100);
-#endif
-
-#if 0
-  const char atcwmode[] = "AT+CWMODE?\r\n";
-  send_data(atcwmode, sizeof(atcwmode));
-
-  _delay_ms(100);
-#endif
-
-#if 0
-  const char atcwlap[] = "AT+CWLAP\r\n";
-  send_data(atcwlap, sizeof(atcwlap));
-
-  _delay_ms(100);
-#endif
-
-#if 0
-  const char atcwjap[] = "AT+CWJAP=\"" WIFI_SSID "\",\"" WIFI_PASSWD "\"\r\n";
-  send_data(atcwjap, sizeof(atcwjap));
-
-  _delay_ms(100);
-  _delay_ms(100);
-  _delay_ms(100);
-  _delay_ms(100);
-  _delay_ms(100);
-  _delay_ms(100);
-  _delay_ms(100);
-  _delay_ms(100);
-  _delay_ms(100);
-  _delay_ms(100);
-  _delay_ms(100);
-#endif
-
-#if 0
-  const char atcwqap[] = "AT+CWQAP\r\n";
-  send_data(atcwqap, sizeof(atcwqap));
-
-  _delay_ms(100);
-#endif
-
-#if 0
-  const char atmac[] = "AT+CIPSTAMAC?\r\n";
-  send_data(atmac, sizeof(atmac));
-
-  _delay_ms(100);
-#endif
-
-#if 0
-  const char atcwhost[] = "AT+CWHOSTNAME=\"my_test\"\r\n";
-  send_data(atcwhost, sizeof(atcwhost));
-
-  _delay_ms(100);
-#endif
-
-#if 0
-  const char atcipsta[] = "AT+CIPSTA?\r\n";
-  send_data(atcipsta, sizeof(atcipsta));
-
-  _delay_ms(100);
-#endif
-
-#if 0
-  const char atcipmux[] = "AT+CIPMUX=1\r\n";
-  send_data(atcipmux, sizeof(atcipmux));
-
-  _delay_ms(100);
-#endif
-
-#if 0
-  const char atcipserver[] = "AT+CIPSERVER=1,80\r\n";
-  send_data(atcipserver, sizeof(atcipserver));
-
-  _delay_ms(100);
-#endif
-
-#if 0
-  const char atcipsend[] = "AT+CIPSEND=0,5\r\n";
-  send_data(atcipsend, sizeof(atcipsend));
-
-  _delay_ms(100);
-
-  const char data[] = "12345";
-  send_data(data, sizeof(data) - 1);
-
-  _delay_ms(100);
-#endif
-
+  esp_timer_start(AT_CMD_TIMER_LONG);
 }
 
-void wifi_timer_interrupt(void) { at_cmd_response_timer_counter(); }
+void wifi_timer_interrupt(void) {
+  esp_timer_counter();
+}
 
 char wifi_get_led_red_ratio(void) {
   return red_ratio;
@@ -305,59 +304,7 @@ void wifi_main(void) {
     esp_reset = false;
   }
 
-  static int once;
-  if(!once) {
-    const char at[] = "AT";
-    send_data(at, sizeof(at));
-    once = 1;
-  }
-
   if (recv_buffer_len != 0) {
     read_recv_buffer();
   }
 }
-
-#if 0
- char data[2][26]={
-    "OK", "+IPD:0,15,20220425T183150"
-  };
-
-  size_t i;
-  char* ipd="+IPD:";
-  char found = 1;
-  for(i=0;i<sizeof(*ipd)-1;i++){
-    if(ipd[i] != data[1][i]){
-      found = 0;
-    }
-  }
-
-  if(!found){
-    return 0;
-  }
-
-  size_t h, m;
-      char buff[3];
-  for(i=19;i<21;i++){
-    buff[i-19] = data[1][i];
-  }
-  buff[2] = 0;
-    h = atoi(buff);
-
-  for(;i<23;i++){
-    buff[i-21] = data[1][i];
-  }
-  m = atoi(buff);
-
-  if (m == 1){
-    _delay_ms(1);
-  }
-
-    while(1) // Infinite loop
-    {
-      _delay_ms(500);  // Delay for 500 ms
-      tbi(PORTB, (h+m)); // the toggling takes place here
-    }
-
-    return 0;
-}
-#endif

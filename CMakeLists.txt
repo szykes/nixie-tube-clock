@@ -13,8 +13,13 @@ set(MCU_DUDE m88p)
 # The programmer to use, read avrdude manual for list
 set(PROG_TYPE avrispmkII)
 
-set(WIFI_SSID xxxx)
-set(WIFI_PASSWD xxxx)
+set(WIFI_SSID xxxxx)
+set(WIFI_PASSWD xxxxx)
+
+set(ESP_TCP_PORT xxxx)
+
+set(TIME_SERVER_IP xxxx)
+set(TIME_SERVER_PORT xxxx)
 
 # AVR Fuses, must be in concordance with your hardware and F_CPU
 # https://www.engbedded.com/fusecalc/
@@ -37,8 +42,11 @@ add_executable(nixie-tube-clock
 
 target_compile_definitions(nixie-tube-clock PUBLIC
     -DF_CPU=${F_CPU}
-    -DWIFI_SSID=${WIFI_SSID}
-    -DWIFI_PASSWD=${WIFI_PASSWD}
+    -DWIFI_SSID="${WIFI_SSID}"
+    -DWIFI_PASSWD="${WIFI_PASSWD}"
+    -DESP_TCP_PORT="${ESP_TCP_PORT}"
+    -DTIME_SERVER_IP="${TIME_SERVER_IP}"
+    -DTIME_SERVER_PORT="${TIME_SERVER_PORT}"
 )
 
 target_include_directories(nixie-tube-clock PUBLIC
