@@ -20136,6 +20136,9 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <part name="GL4" library="00_own" deviceset="GLIMMLAMP" device=""/>
 <part name="R33" library="resistor" deviceset="R-EU_" device="R1206" value="330k"/>
 <part name="P+43" library="supply1" deviceset="V+" device=""/>
+<part name="C10" library="resistor" deviceset="C-EU" device="C1206" value="100 n"/>
+<part name="+3V4" library="supply1" deviceset="+3V3" device=""/>
+<part name="GND18" library="supply1" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -20312,6 +20315,9 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <instance part="GL4" gate="GL" x="226.06" y="66.04"/>
 <instance part="R33" gate="G$1" x="226.06" y="81.28" rot="R90"/>
 <instance part="P+43" gate="1" x="226.06" y="91.44"/>
+<instance part="C10" gate="G$1" x="-193.04" y="48.26"/>
+<instance part="+3V4" gate="G$1" x="-193.04" y="55.88"/>
+<instance part="GND18" gate="1" x="-193.04" y="38.1"/>
 </instances>
 <busses>
 <bus name="SEC_1_[0..9],SEC_10_[0..5],MIN_1_[0..9],MIN_10_[0..5],HOUR_1_[0..9],HOUR_10_[0..2],GLIMM_[0..1]">
@@ -20492,6 +20498,11 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <wire x1="-190.5" y1="-7.62" x2="-208.28" y2="-7.62" width="0.1524" layer="91"/>
 <wire x1="-208.28" y1="-7.62" x2="-208.28" y2="-5.08" width="0.1524" layer="91"/>
 <junction x="-190.5" y="-7.62"/>
+</segment>
+<segment>
+<pinref part="C10" gate="G$1" pin="2"/>
+<pinref part="GND18" gate="1" pin="GND"/>
+<wire x1="-193.04" y1="43.18" x2="-193.04" y2="40.64" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="SEC_1_0" class="0">
@@ -22053,6 +22064,11 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <junction x="-177.8" y="-5.08"/>
 <pinref part="IC4" gate="G$1" pin="VCC@2"/>
 <wire x1="-177.8" y1="-7.62" x2="-175.26" y2="-7.62" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="+3V4" gate="G$1" pin="+3V3"/>
+<pinref part="C10" gate="G$1" pin="1"/>
+<wire x1="-193.04" y1="53.34" x2="-193.04" y2="50.8" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$19" class="0">
