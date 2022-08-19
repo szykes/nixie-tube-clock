@@ -7,6 +7,7 @@ Desktop="Desktop"
 
 [Globals]
 AutoSaveProject=1
+UsedLibrary="C:/EAGLE-7.5.0/lbr/00_own.lbr"
 UsedLibrary="C:/EAGLE-7.5.0/lbr/19inch.lbr"
 UsedLibrary="C:/EAGLE-7.5.0/lbr/40xx.lbr"
 UsedLibrary="C:/EAGLE-7.5.0/lbr/41xx.lbr"
@@ -352,10 +353,10 @@ UsedLibrary="C:/EAGLE-7.5.0/lbr/zilog.lbr"
 
 [Win_1]
 Type="Control Panel"
-Loc="0 0 599 399"
+Loc="0 0 1035 577"
 State=2
 Number=0
 
 [Desktop]
-Screen="1600 1200"
+Screen="1440 900"
 Window="Win_1"
