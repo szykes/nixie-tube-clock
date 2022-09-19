@@ -20322,7 +20322,7 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <instance part="+3V5" gate="G$1" x="-185.42" y="48.26"/>
 </instances>
 <busses>
-<bus name="SEC_1_[0..9],SEC_10_[0..5],MIN_1_[0..9],MIN_10_[0..5],HOUR_1_[0..9],HOUR_10_[0..2],GLIMM_[0..1]">
+<bus name="SEC_1_[0..9],SEC_10_[0..5],MIN_1_[0..9],MIN_10_[0..5],HOUR_1_[0..9],HOUR_10_[0..2],GLIMM_[0..3]">
 <segment>
 <wire x1="309.88" y1="40.64" x2="157.48" y2="40.64" width="0.762" layer="92"/>
 <wire x1="157.48" y1="40.64" x2="76.2" y2="40.64" width="0.762" layer="92"/>
@@ -21846,36 +21846,10 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <label x="86.36" y="43.18" size="1.778" layer="95" rot="R90"/>
 </segment>
 <segment>
-<wire x1="76.2" y1="-30.48" x2="73.66" y2="-33.02" width="0.1524" layer="91"/>
-<pinref part="IC1" gate="G$1" pin="HVOUT8"/>
-<wire x1="73.66" y1="-33.02" x2="55.88" y2="-33.02" width="0.1524" layer="91"/>
-<label x="58.42" y="-33.02" size="1.778" layer="95"/>
-</segment>
-<segment>
-<wire x1="104.14" y1="40.64" x2="106.68" y2="43.18" width="0.1524" layer="91"/>
-<pinref part="GL3" gate="GL" pin="P$2"/>
-<wire x1="106.68" y1="43.18" x2="106.68" y2="58.42" width="0.1524" layer="91"/>
-<label x="106.68" y="43.18" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GLIMM_1" class="0">
-<segment>
-<wire x1="205.74" y1="40.64" x2="208.28" y2="43.18" width="0.1524" layer="91"/>
-<pinref part="GL2" gate="GL" pin="P$2"/>
-<wire x1="208.28" y1="43.18" x2="208.28" y2="58.42" width="0.1524" layer="91"/>
-<label x="208.28" y="43.18" size="1.778" layer="95" rot="R90"/>
-</segment>
-<segment>
-<wire x1="157.48" y1="-7.62" x2="154.94" y2="-10.16" width="0.1524" layer="91"/>
-<pinref part="IC2" gate="G$1" pin="HVOUT17"/>
-<wire x1="154.94" y1="-10.16" x2="142.24" y2="-10.16" width="0.1524" layer="91"/>
-<label x="144.78" y="-10.16" size="1.778" layer="95"/>
-</segment>
-<segment>
-<wire x1="223.52" y1="40.64" x2="226.06" y2="43.18" width="0.1524" layer="91"/>
-<pinref part="GL4" gate="GL" pin="P$2"/>
-<wire x1="226.06" y1="43.18" x2="226.06" y2="58.42" width="0.1524" layer="91"/>
-<label x="226.06" y="43.18" size="1.778" layer="95" rot="R90"/>
+<wire x1="76.2" y1="-33.02" x2="73.66" y2="-35.56" width="0.1524" layer="91"/>
+<pinref part="IC1" gate="G$1" pin="HVOUT7"/>
+<wire x1="73.66" y1="-35.56" x2="55.88" y2="-35.56" width="0.1524" layer="91"/>
+<label x="58.42" y="-35.56" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="MOSI" class="0">
@@ -22213,6 +22187,48 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <wire x1="-177.8" y1="30.48" x2="-177.8" y2="33.02" width="0.1524" layer="91"/>
 <wire x1="-185.42" y1="30.48" x2="-177.8" y2="30.48" width="0.1524" layer="91"/>
 <junction x="-177.8" y="30.48"/>
+</segment>
+</net>
+<net name="GLIMM_1" class="0">
+<segment>
+<wire x1="104.14" y1="40.64" x2="106.68" y2="43.18" width="0.1524" layer="91"/>
+<pinref part="GL3" gate="GL" pin="P$2"/>
+<wire x1="106.68" y1="43.18" x2="106.68" y2="58.42" width="0.1524" layer="91"/>
+<label x="106.68" y="43.18" size="1.778" layer="95" rot="R90"/>
+</segment>
+<segment>
+<wire x1="76.2" y1="-30.48" x2="73.66" y2="-33.02" width="0.1524" layer="91"/>
+<pinref part="IC1" gate="G$1" pin="HVOUT8"/>
+<wire x1="73.66" y1="-33.02" x2="55.88" y2="-33.02" width="0.1524" layer="91"/>
+<label x="58.42" y="-33.02" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GLIMM_2" class="0">
+<segment>
+<wire x1="205.74" y1="40.64" x2="208.28" y2="43.18" width="0.1524" layer="91"/>
+<pinref part="GL2" gate="GL" pin="P$2"/>
+<wire x1="208.28" y1="43.18" x2="208.28" y2="58.42" width="0.1524" layer="91"/>
+<label x="208.28" y="43.18" size="1.778" layer="95" rot="R90"/>
+</segment>
+<segment>
+<wire x1="157.48" y1="-7.62" x2="154.94" y2="-10.16" width="0.1524" layer="91"/>
+<pinref part="IC2" gate="G$1" pin="HVOUT17"/>
+<wire x1="154.94" y1="-10.16" x2="142.24" y2="-10.16" width="0.1524" layer="91"/>
+<label x="144.78" y="-10.16" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GLIMM_3" class="0">
+<segment>
+<wire x1="223.52" y1="40.64" x2="226.06" y2="43.18" width="0.1524" layer="91"/>
+<pinref part="GL4" gate="GL" pin="P$2"/>
+<wire x1="226.06" y1="43.18" x2="226.06" y2="58.42" width="0.1524" layer="91"/>
+<label x="226.06" y="43.18" size="1.778" layer="95" rot="R90"/>
+</segment>
+<segment>
+<wire x1="157.48" y1="-5.08" x2="154.94" y2="-7.62" width="0.1524" layer="91"/>
+<pinref part="IC2" gate="G$1" pin="HVOUT18"/>
+<wire x1="154.94" y1="-7.62" x2="142.24" y2="-7.62" width="0.1524" layer="91"/>
+<label x="144.78" y="-7.62" size="1.778" layer="95"/>
 </segment>
 </net>
 </nets>
