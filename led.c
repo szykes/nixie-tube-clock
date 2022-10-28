@@ -43,9 +43,9 @@ void led_init(void) {
   // TCCR0A = 0x00;
 
   // 7 372 800 Hz internal RC osc. / 256 -> timer input: 28 800 Hz
-  TCCR0B = (1 << CS02);
+  TCCR0 = (1 << CS02);
 
   TCNT0 = TIMER_INIT_CNT;
 
-  TIMSK0 = (1 << TOIE0);
+  TIMSK = (1 << TOIE0);
 }

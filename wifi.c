@@ -32,9 +32,9 @@ typedef enum {
 
 typedef void (*at_cmd_response_handler_func)(const char *buf, size_t len);
 
-static volatile char red_ratio = 10;
-static volatile char green_ratio = 150;
-static volatile char blue_ratio = 120;
+static volatile char red_ratio = 0;
+static volatile char green_ratio = 0;
+static volatile char blue_ratio = 0;
 
 static volatile char recv_buffer[32];
 static volatile size_t recv_buffer_len;
@@ -63,8 +63,8 @@ static void esp_timer_counter(void) {
 }
 
 static void send_data_exec(char data) {
-  while (!(UCSR0A & (1 << UDRE0)));
-  UDR0 = data;
+  while (!(UCSRA & (1 << UDRE)));
+  UDR = data;
 }
 
 static void send_data(const char *data, size_t len) {
@@ -241,11 +241,11 @@ static void read_recv_buffer(void) {
   len = 0;
 }
 
-ISR(USART_RX_vect) {
+ISR(USART_RXC_vect) {
   static char buf[sizeof(recv_buffer)];
   static size_t idx;
 
-  char temp = UDR0;
+  char temp = UDR;
 
   if(idx < (sizeof(recv_buffer) - 1)) {
     buf[idx] = temp;
@@ -267,16 +267,16 @@ ISR(USART_RX_vect) {
 }
 
 void wifi_init(void) {
-  UBRR0H = UBRRH_VALUE;
-  UBRR0L = UBRRL_VALUE;
+  UBRRH = UBRRH_VALUE;
+  UBRRL = UBRRL_VALUE;
 #if USE_2X
-  UCSR0A |= (1 << U2X0);
+  UCSRA |= (1 << U2X);
 #else
-  UCSR0A &= ~(1 << U2X0);
+  UCSRA &= ~(1 << U2X);
 #endif
 
-  UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
-  UCSR0B = (1 << RXCIE0) | (1 << RXEN0) | (1 << TXEN0);
+  UCSRC = (1 << UCSZ1) | (1 << UCSZ0);
+  UCSRB = (1 << RXCIE) | (1 << RXEN) | (1 << TXEN);
 
   gpio_esp_reset();
 
