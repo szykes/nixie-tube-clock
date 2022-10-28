@@ -16,22 +16,22 @@ ISR(TIMER0_OVF_vect) {
 
   if(cnt == MAX_CNT) {
     cnt = 0;
-    gpio_set_led_red();
-    gpio_set_led_green();
-    gpio_set_led_blue();
+    gpio_led_red_set();
+    gpio_led_green_set();
+    gpio_led_blue_set();
     clock_timer_interrupt();
   }
 
   if(cnt == wifi_get_led_red_ratio()) {
-    gpio_reset_led_red();
+    gpio_led_red_reset();
   }
 
   if(cnt == wifi_get_led_green_ratio()) {
-    gpio_reset_led_green();
+    gpio_led_green_reset();
   }
 
   if(cnt == wifi_get_led_blue_ratio()) {
-    gpio_reset_led_blue();
+    gpio_led_blue_reset();
   }
 
   cnt++;

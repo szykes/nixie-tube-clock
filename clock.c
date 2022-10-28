@@ -218,9 +218,9 @@ static void send_spi_time_data(size_t idx) {
 static void dark_period(void) {
   if((time_data.hour_10 <= 2) && (time_data.hour_1 <= 2) && (time_data.min_10 <= 3) &&
      (time_data.hour_10 == 0) && (time_data.hour_1 >= 6) && (time_data.min_10 >= 2)) {
-    gpio_reset_blanking();
+    gpio_blanking_reset();
   } else {
-    gpio_set_blanking();
+    gpio_blanking_set();
   }
 }
 
