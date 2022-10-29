@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
+#include <limits.h>
 
 #include <avr/interrupt.h>
 
@@ -17,7 +18,7 @@ M_1_9  | M_1_8  | M_1_7  | M_1_6  | M_1_5  | M_1_4  | M_1_3  | M_1_2
 
 time_data[1]
 7      | 6      | 5      | 4      | 3      | 2      | 1      | 0
-M_1_1  | M_1_0  | NC     | NC     | NC     | NC     | NC     | GLIM_1
+M_1_1  | M_1_0  | NC     | NC     | NC     | NC     | GLIM_3 | GLIM_2
 
 time_data[2]
 7      | 6      | 5      | 4      | 3      | 2      | 1      | 0
@@ -41,8 +42,9 @@ H_1_7  | H_1_6  | H_1_5  | H_1_4  | H_1_3  | H_1_2  | H_1_1  | H_1_0
 
 time_data[7]
 7      | 6      | 5      | 4      | 3      | 2      | 1      | 0
-GLIM_0 | NC     | M_10_5 | M_10_4 | M_10_3 | M_10_2 | M_10_1 | M_10_0
+GLIM_1 | GLIM_0 | M_10_5 | M_10_4 | M_10_3 | M_10_2 | M_10_1 | M_10_0
  */
+
 
 static time_st time_data;
 static char time_raw_data[8];
@@ -51,17 +53,17 @@ static volatile bool increment_time = false;
 static volatile bool resetting_glimm = false;
 
 static void clear_time_data(void) {
-  memset(&time_raw_data, 0, sizeof(time_raw_data));
-}
-
-static void set_glimm(void) {
-  time_raw_data[1] |= (1 << 0);
-  time_raw_data[7] |= (1 << 0);
+  memset(&time_raw_data, 0x00, sizeof(time_raw_data));
 }
 
 static void reset_glimm(void) {
-  time_raw_data[1] &= ~(1 << 0);
-  time_raw_data[7] &= ~(1 << 0);
+  time_raw_data[1] &= ~(3 << 0);
+  time_raw_data[7] &= ~(3 << 6);
+}
+
+static void set_glimm(void) {
+  time_raw_data[1] |= (3 << 0);
+  time_raw_data[7] |= (3 << 6);
 }
 
 static void set_hour_10(char hour) {
@@ -211,11 +213,8 @@ static void calculate_time(void) {
   set_sec_1(time_data.sec_1);
 }
 
-static void send_spi_time_data(size_t idx) {
-  SPDR = time_raw_data[idx];
-}
-
 static void dark_period(void) {
+  // turn off displaying between: 22:30 - 06:20
   if((time_data.hour_10 <= 2) && (time_data.hour_1 <= 2) && (time_data.min_10 <= 3) &&
      (time_data.hour_10 == 0) && (time_data.hour_1 >= 6) && (time_data.min_10 >= 2)) {
     gpio_blanking_reset();
@@ -224,23 +223,31 @@ static void dark_period(void) {
   }
 }
 
-ISR(SPI_STC_vect) {
-  static char time_data_idx = 0;
+static void transmit_bits(size_t idx) {
+  for(char i = CHAR_BIT - 1; i >= 0; i--) {
+    if(time_raw_data[idx] & (1 << i)) {
+      gpio_data_set();
+    } else {
+      gpio_data_reset();
+    }
+    gpio_do_clk_cyc();
+  }
+}
 
-  time_data_idx++;
-
-  if (time_data_idx >= sizeof(time_raw_data)) {
-    time_data_idx = 0;
-    gpio_latch_enable();
-  } else {
-    send_spi_time_data(time_data_idx);
+static void send_spi_time_data(void) {
+  // SPI does not work well, the pins are floating.
+  // I implemented myself.
+  for(size_t i = 0; i < sizeof(time_raw_data); i++) {
+    transmit_bits(i);
   }
 }
 
 void clock_init(void) {
-  SPCR = (1 << SPIE) | (1<<SPE) | (1<<MSTR) | (1 << CPHA) | (1<< SPR1) | (1<<SPR0);
+  gpio_polarity_set();
 
-  send_spi_time_data(0);
+  clear_time_data();
+
+  send_spi_time_data();
 }
 
 void clock_timer_interrupt(void) {
@@ -271,7 +278,7 @@ void clock_main(void) {
 
     set_glimm();
 
-    send_spi_time_data(0);
+    send_spi_time_data();
   }
 
   if(resetting_glimm) {
@@ -279,7 +286,7 @@ void clock_main(void) {
 
     reset_glimm();
 
-    send_spi_time_data(0);
+    send_spi_time_data();
   }
 
   dark_period();

@@ -33,8 +33,24 @@ inline void gpio_led_blue_reset(void) {
   PORTC &= ~(1 << PC2);
 }
 
-inline void gpio_latch_enable(void) {
+inline void gpio_data_set(void) {
+  PORTB |= (1 << PB3);
+}
+
+inline void gpio_data_reset(void) {
+  PORTB &= ~(1 << PB3);
+}
+
+inline void gpio_do_clk_cyc(void) {
+  PORTB |= (1 << PB5);
+  PORTB &= ~(1 << PB5);
+}
+
+inline void gpio_latch_enable_set(void) {
   PORTB |= (1 << PB0);
+}
+
+inline void gpio_latch_enable_reset(void) {
   PORTB &= ~(1 << PB0);
 }
 
