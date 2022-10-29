@@ -59,11 +59,9 @@ target_compile_options(nixie-tube-clock PUBLIC
     -Wundef
     -pedantic
     -Werror
-    -Wfatal-errors
     -Wl,--relax,--gc-sections
-    -funsigned-char
-    -funsigned-bitfields
     -fpack-struct
+    -funsigned-char
     -fshort-enums
     -ffunction-sections
     -fdata-sections
@@ -93,7 +91,7 @@ add_custom_target(upload_eeprom avrdude -c ${PROG_TYPE} -p ${MCU}  -U eeprom:w:$
 
 # Burn fuses
 # -U lfuse:w:0xfd:m -U hfuse:w:0xd9:m
-add_custom_target(fuses avrdude -c ${PROG_TYPE} -p ${MCU} -U lfuse:w:${L_FUSE}:m -U hfuse:w:${H_FUSE}:m)
+add_custom_target(fuses avrdude -c ${PROG_TYPE} -p ${MCU_DUDE} -U lfuse:w:${L_FUSE}:m -U hfuse:w:${H_FUSE}:m)
 
 # Clean extra files
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${PRODUCT_NAME}.hex;${PRODUCT_NAME}.eeprom;${PRODUCT_NAME}.lst")
