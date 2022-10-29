@@ -32,10 +32,6 @@ typedef enum {
 
 typedef void (*at_cmd_response_handler_func)(const char *buf, size_t len);
 
-static volatile char red_ratio = 0;
-static volatile char green_ratio = 0;
-static volatile char blue_ratio = 0;
-
 static volatile char recv_buffer[32];
 static volatile size_t recv_buffer_len;
 
@@ -285,18 +281,6 @@ void wifi_init(void) {
 
 void wifi_timer_interrupt(void) {
   esp_timer_counter();
-}
-
-char wifi_get_led_red_ratio(void) {
-  return red_ratio;
-}
-
-char wifi_get_led_green_ratio(void) {
-  return green_ratio;
-}
-
-char wifi_get_led_blue_ratio(void) {
-  return blue_ratio;
 }
 
 void wifi_main(void) {
