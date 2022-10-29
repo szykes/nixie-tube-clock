@@ -215,16 +215,20 @@ static void calculate_time(void) {
 
 static void dark_period(void) {
   // turn off displaying between: 22:30 - 06:20
-  if((time_data.hour_10 <= 2) && (time_data.hour_1 <= 2) && (time_data.min_10 <= 3) &&
-     (time_data.hour_10 == 0) && (time_data.hour_1 >= 6) && (time_data.min_10 >= 2)) {
+  if(((time_data.hour_10 <= 2) && (time_data.hour_1 <= 2) && (time_data.min_10 <= 3)) ||
+     ((time_data.hour_10 == 0) && (time_data.hour_1 >= 6) && (time_data.min_10 >= 2))) {
+    gpio_polarity_set();
     gpio_blanking_reset();
+    led_is_dark_period(false);
   } else {
+    gpio_polarity_reset();
     gpio_blanking_set();
+    led_is_dark_period(true);
   }
 }
 
 static void transmit_bits(size_t idx) {
-  for(char i = CHAR_BIT - 1; i >= 0; i--) {
+  for(signed char i = CHAR_BIT - 1; i >= 0; i--) {
     if(time_raw_data[idx] & (1 << i)) {
       gpio_data_set();
     } else {
@@ -245,7 +249,10 @@ static void send_spi_time_data(void) {
 void clock_init(void) {
   gpio_polarity_set();
 
-  clear_time_data();
+  time_data.hour_10 = 1;
+  time_data.hour_1 = 2;
+
+  calculate_time();
 
   send_spi_time_data();
 }
@@ -276,6 +283,8 @@ void clock_main(void) {
 
     calculate_time();
 
+    dark_period();
+
     set_glimm();
 
     send_spi_time_data();
@@ -288,6 +297,4 @@ void clock_main(void) {
 
     send_spi_time_data();
   }
-
-  dark_period();
 }
