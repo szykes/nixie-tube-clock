@@ -26,7 +26,7 @@ inline void gpio_led_green_reset(void) {
 }
 
 inline void gpio_led_blue_set(void) {
-  PORTC |= ~(1 << PC2);
+  PORTC |= (1 << PC2);
 }
 
 inline void gpio_led_blue_reset(void) {
