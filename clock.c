@@ -14,35 +14,35 @@
 /*
 time_data[0]
 7      | 6      | 5      | 4      | 3      | 2      | 1      | 0
-M_1_9  | M_1_8  | M_1_7  | M_1_6  | M_1_5  | M_1_4  | M_1_3  | M_1_2
+M_1_2  | M_1_3  | M_1_4  | M_1_5  | M_1_6  | M_1_7  | M_1_8  | M_1_9
 
 time_data[1]
 7      | 6      | 5      | 4      | 3      | 2      | 1      | 0
-M_1_1  | M_1_0  | NC     | NC     | NC     | NC     | GLIM_3 | GLIM_2
+M_1_0  | M_1_1  | NC     | NC     | NC     | NC     | GLIM_3 | GLIM_2
 
 time_data[2]
 7      | 6      | 5      | 4      | 3      | 2      | 1      | 0
-S_10_5 | S_10_4 | S_10_3 | S_10_2 | S_10_1 | S_10_0 | S_1_9  | S_1_8
+S_10_5 | S_10_4 | S_10_3 | S_10_2 | S_10_0 | S_10_1 | S_1_2  | S_1_3
 
 time_data[3]
 7      | 6      | 5      | 4      | 3      | 2      | 1      | 0
-S_1_7  | S_1_6  | S_1_5  | S_1_4  | S_1_3  | S_1_2  | S_1_1  | S_1_0
+S_1_4  | S_1_5  | S_1_6  | S_1_7  | S_1_8  | S_1_9  | S_1_0  | S_1_1
 
 time_data[4]
 7      | 6      | 5      | 4      | 3      | 2      | 1      | 0
-NC     | NC     | NC     | NC     | NC     | H_10_2 | H_10_1 | H_10_0
+NC     | NC     | NC     | NC     | NC     | H_10_2 | H_10_0 | H_10_1
 
 time_data[5]
 7      | 6      | 5      | 4      | 3      | 2      | 1      | 0
-NC     | NC     | NC     | NC     | NC     | NC     | H_1_9  | H_1_8
+NC     | NC     | NC     | NC     | NC     | NC     | H_1_2  | H_1_3
 
 time_data[6]
 7      | 6      | 5      | 4      | 3      | 2      | 1      | 0
-H_1_7  | H_1_6  | H_1_5  | H_1_4  | H_1_3  | H_1_2  | H_1_1  | H_1_0
+H_1_4  | H_1_5  | H_1_6  | H_1_7  | H_1_8  | H_1_9  | H_1_0  | H_1_1
 
 time_data[7]
 7      | 6      | 5      | 4      | 3      | 2      | 1      | 0
-GLIM_1 | GLIM_0 | M_10_5 | M_10_4 | M_10_3 | M_10_2 | M_10_1 | M_10_0
+GLIM_1 | GLIM_0 | M_10_5 | M_10_4 | M_10_3 | M_10_2 | M_10_0 | M_10_1
  */
 
 
@@ -69,9 +69,13 @@ static void set_glimm(void) {
 static void set_hour_10(char hour) {
   switch(hour) {
   case 0:
+    time_raw_data[4] |= (1 << 1);
+    break;
   case 1:
+    time_raw_data[4] |= (1 << 0);
+    break;
   case 2:
-    time_raw_data[4] |= (1 << hour);
+    time_raw_data[4] |= (1 << 2);
     break;
   default:
     break;
@@ -81,18 +85,34 @@ static void set_hour_10(char hour) {
 static void set_hour_1(char hour) {
   switch(hour) {
   case 0:
+    time_raw_data[6] |= (1 << 1);
+    break;
   case 1:
+    time_raw_data[6] |= (1 << 0);
+    break;
   case 2:
+    time_raw_data[5] |= (1 << 1);
+    break;
   case 3:
+    time_raw_data[5] |= (1 << 0);
+    break;
   case 4:
+    time_raw_data[6] |= (1 << 7);
+    break;
   case 5:
+    time_raw_data[6] |= (1 << 6);
+    break;
   case 6:
+    time_raw_data[6] |= (1 << 5);
+    break;
   case 7:
-    time_raw_data[6] |= (1 << hour);
+    time_raw_data[6] |= (1 << 4);
     break;
   case 8:
+    time_raw_data[6] |= (1 << 3);
+    break;
   case 9:
-    time_raw_data[5] |= (1 << (hour - 8));
+    time_raw_data[6] |= (1 << 2);
     break;
   default:
     break;
@@ -102,7 +122,11 @@ static void set_hour_1(char hour) {
 static void set_min_10(char min) {
   switch(min) {
   case 0:
+    time_raw_data[7] |= (1 << 1);
+    break;
   case 1:
+    time_raw_data[7] |= (1 << 0);
+    break;
   case 2:
   case 3:
   case 4:
@@ -117,8 +141,10 @@ static void set_min_10(char min) {
 static void set_min_1(char min) {
   switch(min) {
   case 0:
+    time_raw_data[1] |= (1 << 7);
+    break;
   case 1:
-    time_raw_data[1] |= (1 << (min + 6));
+    time_raw_data[1] |= (1 << 6);
     break;
   case 2:
   case 3:
@@ -128,7 +154,7 @@ static void set_min_1(char min) {
   case 7:
   case 8:
   case 9:
-    time_raw_data[0] |= (1 << (min - 2));
+    time_raw_data[0] |= (1 << (9 - min));
     break;
   default:
     break;
@@ -138,7 +164,11 @@ static void set_min_1(char min) {
 static void set_sec_10(char sec) {
   switch(sec) {
   case 0:
+    time_raw_data[2] |= (1 << 3);
+    break;
   case 1:
+    time_raw_data[2] |= (1 << 2);
+    break;
   case 2:
   case 3:
   case 4:
@@ -153,18 +183,34 @@ static void set_sec_10(char sec) {
 static void set_sec_1(char sec) {
   switch(sec) {
   case 0:
+    time_raw_data[3] |= (1 << 1);
+    break;
   case 1:
+    time_raw_data[3] |= (1 << 0);
+    break;
   case 2:
+    time_raw_data[2] |= (1 << 1);
+    break;
   case 3:
+    time_raw_data[2] |= (1 << 0);
+    break;
   case 4:
+    time_raw_data[3] |= (1 << 7);
+    break;
   case 5:
+    time_raw_data[3] |= (1 << 6);
+    break;
   case 6:
+    time_raw_data[3] |= (1 << 5);
+    break;
   case 7:
-    time_raw_data[3] |= (1 << sec);
+    time_raw_data[3] |= (1 << 4);
     break;
   case 8:
+    time_raw_data[3] |= (1 << 3);
+    break;
   case 9:
-    time_raw_data[2] |= (1 << (sec - 8));
+    time_raw_data[3] |= (1 << 2);
     break;
   default:
     break;
@@ -201,7 +247,7 @@ static void calculate_time(void) {
     time_data.hour_10++;
   }
 
-  if(time_data.hour_10 >= 3) {
+  if((time_data.hour_10 >= 2) && (time_data.hour_1 >= 4)) {
     time_data.hour_10 = 0;
   }
 
@@ -249,7 +295,7 @@ static void send_spi_time_data(void) {
 void clock_init(void) {
   gpio_polarity_set();
 
-  time_data.hour_10 = 1;
+  time_data.hour_10 = 2;
   time_data.hour_1 = 2;
 
   calculate_time();

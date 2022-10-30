@@ -34,7 +34,7 @@ ISR(TIMER0_OVF_vect) {
   }
 
   if(cnt == red_ratio) {
-    //FIXME gpio_led_red_reset();
+    gpio_led_red_reset();
   }
 
   if(cnt == green_ratio) {
