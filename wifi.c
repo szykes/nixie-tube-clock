@@ -1,5 +1,6 @@
 #include "wifi.h"
 #include "clock.h"
+#include "led.h"
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -170,20 +171,51 @@ static void response_handler_create_tcp_server(const char *buf, size_t len) {
   }
 }
 
+static void resp_data_to_rgb_ratio(const char *buf, size_t len) {
+  enum {
+    RED = 0,
+    GREEN = 1,
+    BLUE = 2,
+  } state = RED;
+
+  for(size_t i = 0; i < len; i++) {
+    if (buf[i] == ';') {
+      switch (state) {
+      case RED:
+	led_set_red_ratio(atoi(buf + i + 1));
+	state = GREEN;
+	break;
+      case GREEN:
+	led_set_green_ratio(atoi(buf + i + 1));
+	state = BLUE;
+	break;
+      case BLUE:
+	led_set_blue_ratio(atoi(buf + i + 1));
+	return;
+	break;
+      default:
+	break;
+      }
+    }
+  }
+}
+
 static void response_handler_establish_tcp_connection(const char *buf, size_t len) {
   if (buf[0] == 'O') { // response OK
     esp_timer_stop();
   } else if (buf[0] == '+' && buf[1] == 'I' && buf[2] == 'P' && buf[3] == 'D') {
-    // example event: +IPD,0,6:1346390,CLOSED
+    // example event: +IPD,0,xx:134639;r;g;b;0,CLOSED
 
     time_st accurate_time;
-    accurate_time.hour_10 = buf[9] - '0';
-    accurate_time.hour_1 = buf[10] - '0';
-    accurate_time.min_10 = buf[11] - '0';
-    accurate_time.min_1 = buf[12] - '0';
-    accurate_time.sec_10 = buf[13] - '0';
-    accurate_time.sec_1 = buf[14] - '0';
+    accurate_time.hour_10 = buf[10] - '0';
+    accurate_time.hour_1 = buf[11] - '0';
+    accurate_time.min_10 = buf[12] - '0';
+    accurate_time.min_1 = buf[13] - '0';
+    accurate_time.sec_10 = buf[14] - '0';
+    accurate_time.sec_1 = buf[15] - '0';
     clock_update_time(accurate_time);
+
+    resp_data_to_rgb_ratio(buf, len);
 
     gpio_reset_ch_pd();
   }
