@@ -11,12 +11,12 @@
 
 #define TIMER_INIT_CNT 0xFF
 
-static volatile char red_ratio = 0;
-static volatile char green_ratio = 0;
-static volatile char blue_ratio = 1;
+static volatile uint8_t red_ratio = 0;
+static volatile uint8_t green_ratio = 0;
+static volatile uint8_t blue_ratio = 1;
 
 ISR(TIMER0_OVF_vect) {
-  static char cnt = 0;
+  static uint8_t cnt = 0;
 
   if(cnt >= MAX_CNT) {
     cnt = 0;
@@ -61,15 +61,15 @@ void led_init(void) {
   TIMSK = (1 << TOIE0);
 }
 
-void led_set_red_ratio(char ratio) {
+void led_set_red_ratio(uint8_t ratio) {
   red_ratio = ratio;
 }
 
-void led_set_green_ratio(char ratio) {
+void led_set_green_ratio(uint8_t ratio) {
   green_ratio = ratio;
 }
 
-void led_set_blue_ratio(char ratio) {
+void led_set_blue_ratio(uint8_t ratio) {
   blue_ratio = ratio;
 }
 

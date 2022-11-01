@@ -61,7 +61,6 @@ target_compile_options(nixie-tube-clock PUBLIC
     -Werror
     -Wl,--relax,--gc-sections
     -fpack-struct
-    -funsigned-char
     -fshort-enums
     -ffunction-sections
     -fdata-sections

@@ -1,6 +1,7 @@
 #include "wifi.h"
 #include "clock.h"
 
+#include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -35,12 +36,12 @@ typedef void (*at_cmd_response_handler_func)(const char *buf, size_t len);
 static volatile char recv_buffer[32];
 static volatile size_t recv_buffer_len;
 
-static volatile char esp_timer = -1;
+static volatile int8_t esp_timer = -1;
 static volatile bool esp_reset = false;
 
 static at_cmd_type sent_at_cmd = AT_CMD_TYPE_NONE;
 
-static void esp_timer_start(char timeout_sec) {
+static void esp_timer_start(int8_t timeout_sec) {
   esp_timer = timeout_sec;
 }
 

@@ -47,7 +47,7 @@ GLIM_1 | GLIM_0 | M_10_5 | M_10_4 | M_10_3 | M_10_2 | M_10_0 | M_10_1
 
 
 static time_st time_data;
-static char time_raw_data[8];
+static uint8_t time_raw_data[8];
 
 static volatile bool increment_time = false;
 static volatile bool resetting_glimm = false;
@@ -66,7 +66,7 @@ static void set_glimm(void) {
   time_raw_data[7] |= (3 << 6);
 }
 
-static void set_hour_10(char hour) {
+static void set_hour_10(uint8_t hour) {
   switch(hour) {
   case 0:
     time_raw_data[4] |= (1 << 1);
@@ -82,7 +82,7 @@ static void set_hour_10(char hour) {
   }
 }
 
-static void set_hour_1(char hour) {
+static void set_hour_1(uint8_t hour) {
   switch(hour) {
   case 0:
     time_raw_data[6] |= (1 << 1);
@@ -119,7 +119,7 @@ static void set_hour_1(char hour) {
   }
 }
 
-static void set_min_10(char min) {
+static void set_min_10(uint8_t min) {
   switch(min) {
   case 0:
     time_raw_data[7] |= (1 << 1);
@@ -138,7 +138,7 @@ static void set_min_10(char min) {
   }
 }
 
-static void set_min_1(char min) {
+static void set_min_1(uint8_t min) {
   switch(min) {
   case 0:
     time_raw_data[1] |= (1 << 7);
@@ -161,7 +161,7 @@ static void set_min_1(char min) {
   }
 }
 
-static void set_sec_10(char sec) {
+static void set_sec_10(uint8_t sec) {
   switch(sec) {
   case 0:
     time_raw_data[2] |= (1 << 3);
@@ -180,7 +180,7 @@ static void set_sec_10(char sec) {
   }
 }
 
-static void set_sec_1(char sec) {
+static void set_sec_1(uint8_t sec) {
   switch(sec) {
   case 0:
     time_raw_data[3] |= (1 << 1);
@@ -238,6 +238,7 @@ static void calculate_time(void) {
   }
 
   if(time_data.min_10 >= 6) {
+    wifi_query_timer();
     time_data.min_10 = 0;
     time_data.hour_1++;
   }
@@ -261,20 +262,20 @@ static void calculate_time(void) {
 
 static void dark_period(void) {
   // turn off displaying between: 22:30 - 06:20
-  if(((time_data.hour_10 <= 2) && (time_data.hour_1 <= 2) && (time_data.min_10 <= 3)) ||
-     ((time_data.hour_10 == 0) && (time_data.hour_1 >= 6) && (time_data.min_10 >= 2))) {
-    gpio_polarity_set();
-    gpio_blanking_reset();
-    led_is_dark_period(false);
-  } else {
+  if(((time_data.hour_10 == 2) && (time_data.hour_1 >= 2) && (time_data.min_10 >= 3)) ||
+     ((time_data.hour_10 == 0) && (time_data.hour_1 <= 6) && (time_data.min_10 <= 2))) {
     gpio_polarity_reset();
     gpio_blanking_set();
     led_is_dark_period(true);
+  } else {
+    gpio_polarity_set();
+    gpio_blanking_reset();
+    led_is_dark_period(false);
   }
 }
 
 static void transmit_bits(size_t idx) {
-  for(signed char i = CHAR_BIT - 1; i >= 0; i--) {
+  for(int8_t i = CHAR_BIT - 1; i >= 0; i--) {
     if(time_raw_data[idx] & (1 << i)) {
       gpio_data_set();
     } else {
@@ -295,7 +296,7 @@ static void send_spi_time_data(void) {
 void clock_init(void) {
   gpio_polarity_set();
 
-  time_data.hour_10 = 2;
+  time_data.hour_10 = 1;
   time_data.hour_1 = 2;
 
   calculate_time();
@@ -304,7 +305,7 @@ void clock_init(void) {
 }
 
 void clock_timer_interrupt(void) {
-  static char cnt = 0;
+  static uint8_t cnt = 0;
 
   if(cnt >= ONE_SEC_CNT) {
     cnt = 0;
