@@ -56,6 +56,11 @@ static void clear_time_data(void) {
   memset(&time_raw_data, 0x00, sizeof(time_raw_data));
 }
 
+static void latch_enable(void) {
+  gpio_latch_enable_reset();
+  gpio_latch_enable_set();
+}
+
 static void reset_glimm(void) {
   time_raw_data[1] &= ~(3 << 0);
   time_raw_data[7] &= ~(3 << 6);
@@ -291,10 +296,12 @@ static void send_spi_time_data(void) {
   for(size_t i = 0; i < sizeof(time_raw_data); i++) {
     transmit_bits(i);
   }
+  latch_enable();
 }
 
 void clock_init(void) {
   gpio_polarity_set();
+  gpio_latch_enable_set();
 
   time_data.hour_10 = 1;
   time_data.hour_1 = 2;
