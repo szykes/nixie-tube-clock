@@ -8,13 +8,12 @@
 
 int main()
 {
+  sei();
   gpio_init();
   wifi_init();
   led_init();
   clock_init();
   wdt_enable(WDTO_250MS);
-
-  sei();
 
   while(1) {
     wifi_main();
