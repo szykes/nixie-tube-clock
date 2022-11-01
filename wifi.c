@@ -299,3 +299,7 @@ void wifi_main(void) {
     read_recv_buffer();
   }
 }
+
+void wifi_query_timer(void) {
+  gpio_set_ch_pd();
+}
