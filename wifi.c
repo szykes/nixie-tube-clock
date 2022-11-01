@@ -52,7 +52,6 @@ static void esp_timer_counter(void) {
   if (esp_timer > AT_CMD_TIMER_STOP) {
     esp_timer--;
     if (esp_timer <= AT_CMD_TIMER_STOP) {
-      esp_timer = AT_CMD_TIMER_STOP;
       esp_reset = true;
     }
   }
@@ -184,6 +183,8 @@ static void response_handler_establish_tcp_connection(const char *buf, size_t le
     accurate_time.sec_10 = buf[13] - '0';
     accurate_time.sec_1 = buf[14] - '0';
     clock_update_time(accurate_time);
+
+    gpio_reset_ch_pd();
   }
 }
 
@@ -198,7 +199,9 @@ static at_cmd_response_handler_func at_cmd_response_handler[] = {
 };
 
 static void parse_response(const char *buf, size_t len) {
-  if(buf[0] == 'r' && buf[1] == 'e' && buf[2] == 'a' && buf[3] == 'd' && buf[4] == 'y') {
+  // some ESP01 response with 'ready' and some with 'invalid', when ESP is ready
+  if((buf[0] == 'r' && buf[1] == 'e' && buf[2] == 'a' && buf[3] == 'd' && buf[4] == 'y') ||
+     (buf[0] == 'i' && buf[1] == 'n' && buf[2] == 'v' && buf[3] == 'a' && buf[4] == 'l')) {
     esp_timer_stop();
     send_alive_check();
     return;
@@ -231,10 +234,9 @@ static void read_recv_buffer(void) {
     return;
   }
 
-  parse_response(buf, len);
-
   recv_buffer_len = 0;
-  len = 0;
+
+  parse_response(buf, len);
 }
 
 ISR(USART_RXC_vect) {
@@ -271,10 +273,11 @@ void wifi_init(void) {
   UCSRA &= ~(1 << U2X);
 #endif
 
-  UCSRC = (1 << UCSZ1) | (1 << UCSZ0);
+  UCSRC = (1 << URSEL) | (1 << UCSZ1) | (1 << UCSZ0);
   UCSRB = (1 << RXCIE) | (1 << RXEN) | (1 << TXEN);
 
-  gpio_esp_reset();
+  gpio_set_ch_pd();
+  gpio_esp_set();
 
   esp_timer_start(AT_CMD_TIMER_LONG);
 }
@@ -286,6 +289,9 @@ void wifi_timer_interrupt(void) {
 void wifi_main(void) {
   if(esp_reset) {
     gpio_esp_reset();
+    gpio_esp_set();
+    gpio_reset_ch_pd();
+    gpio_set_ch_pd();
     esp_reset = false;
   }
 

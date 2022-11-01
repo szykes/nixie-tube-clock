@@ -70,11 +70,11 @@ inline void gpio_polarity_reset(void) {
   PORTD &= ~(1 << PD7);
 }
 
-inline void gpio_esp_reset(void) {
+inline void gpio_esp_set(void) {
   PORTD |= (1 << PD2);
 }
 
-inline void gpio_esp_set(void) {
+inline void gpio_esp_reset(void) {
   PORTD &= ~(1 << PD2);
 }
 
