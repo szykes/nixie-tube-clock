@@ -243,7 +243,6 @@ static void calculate_time(void) {
   }
 
   if(time_data.min_10 >= 6) {
-    wifi_query_timer();
     time_data.min_10 = 0;
     time_data.hour_1++;
   }
@@ -263,6 +262,12 @@ static void calculate_time(void) {
   set_min_1(time_data.min_1);
   set_sec_10(time_data.sec_10);
   set_sec_1(time_data.sec_1);
+
+  if((time_data.min_1 == 0 || time_data.min_1 == 5) &&
+    time_data.sec_10 == 0 &&
+     time_data.sec_1 == 0) {
+    wifi_query_timer();
+  }
 }
 
 static void dark_period(void) {
