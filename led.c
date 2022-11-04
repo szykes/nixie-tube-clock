@@ -11,9 +11,13 @@
 
 #define TIMER_INIT_CNT 0xFF
 
-static volatile uint8_t red_ratio = 0;
-static volatile uint8_t green_ratio = 0;
-static volatile uint8_t blue_ratio = 15;
+static volatile uint8_t red_ratio_wanted = 0;
+static volatile uint8_t green_ratio_wanted = 0;
+static volatile uint8_t blue_ratio_wanted = 0;
+
+static volatile uint8_t red_ratio_current = 0;
+static volatile uint8_t green_ratio_current = 0;
+static volatile uint8_t blue_ratio_current = 20;
 
 ISR(TIMER0_OVF_vect) {
   static uint8_t cnt = 0;
@@ -22,26 +26,26 @@ ISR(TIMER0_OVF_vect) {
     cnt = 0;
     clock_timer_interrupt();
 
-    if(red_ratio != 0) {
+    if(red_ratio_current != 0) {
       gpio_led_red_set();
     }
-    if(green_ratio != 0) {
+    if(green_ratio_current != 0) {
       gpio_led_green_set();
     }
-    if(blue_ratio != 0) {
+    if(blue_ratio_current != 0) {
       gpio_led_blue_set();
     }
   }
 
-  if(cnt == red_ratio) {
+  if(cnt == red_ratio_current) {
     gpio_led_red_reset();
   }
 
-  if(cnt == green_ratio) {
+  if(cnt == green_ratio_current) {
     gpio_led_green_reset();
   }
 
-  if(cnt == blue_ratio) {
+  if(cnt == blue_ratio_current) {
     gpio_led_blue_reset();
   }
 
@@ -61,16 +65,30 @@ void led_init(void) {
   TIMSK = (1 << TOIE0);
 }
 
+static void align_ratio_to_wanted(volatile uint8_t *wanted, volatile uint8_t *current) {
+  if(*wanted > *current) {
+    (*current)++;
+  } else if(*wanted < *current) {
+    (*current)--;
+  }
+}
+
+void led_timer_interrupt(void) {
+  align_ratio_to_wanted(&red_ratio_wanted, &red_ratio_current);
+  align_ratio_to_wanted(&green_ratio_wanted, &green_ratio_current);
+  align_ratio_to_wanted(&blue_ratio_wanted, &blue_ratio_current);
+}
+
 void led_set_red_ratio(uint8_t ratio) {
-  red_ratio = ratio;
+  red_ratio_wanted = ratio;
 }
 
 void led_set_green_ratio(uint8_t ratio) {
-  green_ratio = ratio;
+  green_ratio_wanted = ratio;
 }
 
 void led_set_blue_ratio(uint8_t ratio) {
-  blue_ratio = ratio;
+  blue_ratio_wanted = ratio;
 }
 
 void led_is_dark_period(bool is_dark) {
