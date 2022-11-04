@@ -136,7 +136,7 @@ static void response_handler_alive_check(const char *buf, size_t len) {
     esp_timer_stop();
 
     send_set_wifi_mode();
-  } else if(buf[0] == 'E') {
+  } else if(buf[0] == 'E') { // response ERROR
     gpio_reset_ch_pd();
   }
 }
@@ -146,7 +146,7 @@ static void response_handler_set_wifi_mode(const char *buf, size_t len) {
     esp_timer_stop();
 
     send_connect_to_ap();
-  } else if(buf[0] == 'E') {
+  } else if(buf[0] == 'E') { // response ERROR
     gpio_reset_ch_pd();
   }
 }
@@ -156,7 +156,7 @@ static void response_handler_connect_to_ap(const char *buf, size_t len) {
     esp_timer_stop();
 
     send_set_multiple_connections_mode();
-  } else if(buf[0] == 'E') {
+  } else if(buf[0] == 'E') { // response ERROR
     gpio_reset_ch_pd();
   }
 }
@@ -166,7 +166,7 @@ static void response_handler_set_multiple_connections_mode(const char *buf, size
     esp_timer_stop();
 
     send_create_tcp_server();
-  } else if(buf[0] == 'E') {
+  } else if(buf[0] == 'E') { // response ERROR
     gpio_reset_ch_pd();
   }
 }
@@ -176,7 +176,7 @@ static void response_handler_create_tcp_server(const char *buf, size_t len) {
     esp_timer_stop();
 
     send_establish_tcp_connection();
-  } else if(buf[0] == 'E') {
+  } else if(buf[0] == 'E') { // response ERROR
     gpio_reset_ch_pd();
   }
 }
@@ -229,7 +229,7 @@ static void response_handler_establish_tcp_connection(const char *buf, size_t le
 
     gpio_reset_ch_pd();
 
-  } else if(buf[0] == 'E') {
+  } else if(buf[0] == 'E') { // response ERROR
     gpio_reset_ch_pd();
   }
 }
@@ -274,13 +274,13 @@ static void read_recv_buffer(void) {
     len = recv_buffer_len;
   }
 
+  recv_buffer_len = 0;
+
   sei();
 
   if(len == 0) {
     return;
   }
-
-  recv_buffer_len = 0;
 
   parse_response(buf, len);
 }
