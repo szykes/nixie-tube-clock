@@ -13,11 +13,11 @@
 
 static volatile uint8_t red_ratio_wanted = 0;
 static volatile uint8_t green_ratio_wanted = 0;
-static volatile uint8_t blue_ratio_wanted = 0;
+static volatile uint8_t blue_ratio_wanted = 30;
 
 static volatile uint8_t red_ratio_current = 0;
 static volatile uint8_t green_ratio_current = 0;
-static volatile uint8_t blue_ratio_current = 20;
+static volatile uint8_t blue_ratio_current = 0;
 
 ISR(TIMER0_OVF_vect) {
   static uint8_t cnt = 0;
