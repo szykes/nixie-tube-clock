@@ -17,6 +17,7 @@ int main()
 
   while(1) {
     wifi_main();
+    led_main();
     clock_main();
     wdt_reset();
   }

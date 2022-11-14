@@ -321,14 +321,14 @@ void clock_init(void) {
 void clock_timer_interrupt(void) {
   static uint8_t cnt = 0;
 
-  if(cnt >= ONE_SEC_CNT) {
+  if(cnt >= kLedOneSecCnt) {
     cnt = 0;
     increment_time = true;
     wifi_timer_interrupt();
     led_timer_interrupt();
   }
 
-  if(cnt == ONE_SEC_CNT / 2) {
+  if(cnt == kLedOneSecCnt / 2) {
     resetting_glimm = true;
   }
 
@@ -337,6 +337,10 @@ void clock_timer_interrupt(void) {
 
 void clock_update_time(time_st accurate_time) {
   time_data = accurate_time;
+}
+
+const time_st *clock_get_time(void) {
+  return &time_data;
 }
 
 void clock_main(void) {

@@ -4,15 +4,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define ONE_SEC_CNT 120
+static const uint8_t kLedOneSecCnt = 120;
 
 void led_init(void);
 
 void led_timer_interrupt(void);
 
-void led_set_red_ratio(uint8_t ratio);
-void led_set_green_ratio(uint8_t ratio);
-void led_set_blue_ratio(uint8_t ratio);
+void led_main(void);
 
 void led_is_dark_period(bool is_dark);
 

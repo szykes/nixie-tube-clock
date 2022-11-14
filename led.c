@@ -1,5 +1,9 @@
 #include "led.h"
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <math.h>
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
@@ -11,13 +15,48 @@
 
 #define TIMER_INIT_CNT 0xFF
 
-static volatile uint8_t red_ratio_wanted = 0;
-static volatile uint8_t green_ratio_wanted = 0;
-static volatile uint8_t blue_ratio_wanted = 30;
+#define HHM_TO_SECS(hour_10, hour_1, min_10) ( \
+    (hour_10) * 10 * 3600 +				\
+    (hour_1) * 3600 +					\
+    (min_10) * 10 * 60)
 
-static volatile uint8_t red_ratio_current = 0;
-static volatile uint8_t green_ratio_current = 0;
-static volatile uint8_t blue_ratio_current = 0;
+#define BRIGHT_PERIOD_IN_SECS ( \
+  HHM_TO_SECS(MAX_HOUR_10, MAX_HOUR_1, MAX_MIN_10) - \
+  HHM_TO_SECS(MIN_HOUR_10, MIN_HOUR_1, MIN_MIN_10))
+
+#define SEVENTH_OF_BRIGHT_PERIOD_IN_SECS (BRIGHT_PERIOD_IN_SECS / (float) 7)
+
+#define RATIO_MODIFIER 40
+
+static volatile bool is_calculate = false;
+
+static volatile bool is_dark_period = false;
+
+static volatile uint8_t red_ratio = 0;
+static volatile uint8_t green_ratio = 0;
+static volatile uint8_t blue_ratio = 0;
+
+static uint32_t get_time_in_secs(void) {
+  const time_st *time = clock_get_time();
+  uint32_t secs = 0;
+  secs += time->hour_10 * 10 * 3600;
+  secs += time->hour_1 * 3600;
+  secs += time->min_10 * 10 * 60;
+  secs += time->min_1 * 60;
+  secs += time->sec_10 * 10;
+  secs += time->sec_1;
+  return secs;
+}
+
+static uint8_t increasing_ratio(uint32_t base) {
+  uint16_t ratio = roundf(base / (SEVENTH_OF_BRIGHT_PERIOD_IN_SECS / (float) (MAX_CNT + RATIO_MODIFIER)));
+  return (ratio > MAX_CNT ? MAX_CNT : ratio);
+}
+
+static uint8_t decreasing_ratio(uint32_t base) {
+  uint16_t ratio = roundf(base / (SEVENTH_OF_BRIGHT_PERIOD_IN_SECS / (float) (MAX_CNT + RATIO_MODIFIER)));
+  return MAX_CNT - (ratio > MAX_CNT ? MAX_CNT : ratio);
+}
 
 ISR(TIMER0_OVF_vect) {
   static uint8_t cnt = 0;
@@ -26,26 +65,26 @@ ISR(TIMER0_OVF_vect) {
     cnt = 0;
     clock_timer_interrupt();
 
-    if(red_ratio_current != 0) {
+    if(red_ratio != 0 && !is_dark_period) {
       gpio_led_red_set();
     }
-    if(green_ratio_current != 0) {
+    if(green_ratio != 0 && !is_dark_period) {
       gpio_led_green_set();
     }
-    if(blue_ratio_current != 0) {
+    if(blue_ratio != 0 && !is_dark_period) {
       gpio_led_blue_set();
     }
   }
 
-  if(cnt == red_ratio_current) {
+  if(cnt == red_ratio) {
     gpio_led_red_reset();
   }
 
-  if(cnt == green_ratio_current) {
+  if(cnt == green_ratio) {
     gpio_led_green_reset();
   }
 
-  if(cnt == blue_ratio_current) {
+  if(cnt == blue_ratio) {
     gpio_led_blue_reset();
   }
 
@@ -65,39 +104,52 @@ void led_init(void) {
   TIMSK = (1 << TOIE0);
 }
 
-static void align_ratio_to_wanted(volatile uint8_t *wanted, volatile uint8_t *current) {
-  if(*wanted > *current) {
-    (*current)++;
-  } else if(*wanted < *current) {
-    (*current)--;
-  }
-}
-
 void led_timer_interrupt(void) {
-  align_ratio_to_wanted(&red_ratio_wanted, &red_ratio_current);
-  align_ratio_to_wanted(&green_ratio_wanted, &green_ratio_current);
-  align_ratio_to_wanted(&blue_ratio_wanted, &blue_ratio_current);
+  is_calculate = true;
 }
 
-void led_set_red_ratio(uint8_t ratio) {
-  red_ratio_wanted = ratio;
-}
+void led_main(void) {
+  if(is_calculate) {
+    is_calculate = false;
 
-void led_set_green_ratio(uint8_t ratio) {
-  green_ratio_wanted = ratio;
-}
+    int64_t secs = get_time_in_secs() - HHM_TO_SECS(MIN_HOUR_10, MIN_HOUR_1, MIN_MIN_10);
+    if(secs < 0) {
+      secs = 0;
+    }
+    uint32_t base = secs % ((uint32_t) SEVENTH_OF_BRIGHT_PERIOD_IN_SECS + 1);
 
-void led_set_blue_ratio(uint8_t ratio) {
-  blue_ratio_wanted = ratio;
+    if(secs > (6 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+      red_ratio = 0;
+      green_ratio = 0;
+      blue_ratio = decreasing_ratio(base);
+    } else if(secs > (5 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+      red_ratio = 0;
+      green_ratio = decreasing_ratio(base);
+      blue_ratio = MAX_CNT;
+    } else if(secs > (4 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+      red_ratio = 0;
+      green_ratio = MAX_CNT;
+      blue_ratio = increasing_ratio(base);
+    } else if(secs > (3 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+      red_ratio = decreasing_ratio(base);
+      green_ratio = MAX_CNT;
+      blue_ratio = 0;
+    } else if(secs > (2 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+      red_ratio = MAX_CNT;
+      green_ratio = increasing_ratio(base);
+      blue_ratio = 0;
+    } else if(secs > SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) {
+      red_ratio = MAX_CNT;
+      green_ratio = 0;
+      blue_ratio = decreasing_ratio(base);
+    } else {
+      red_ratio = increasing_ratio(base);
+      green_ratio = 0;
+      blue_ratio = increasing_ratio(base);
+    }
+  }
 }
 
 void led_is_dark_period(bool is_dark) {
-  if(is_dark) {
-    TCCR0 = 0x00;
-    gpio_led_red_reset();
-    gpio_led_green_reset();
-    gpio_led_blue_reset();
-  } else {
-    TCCR0 = (1 << CS02);
-  }
+  is_dark_period = is_dark;
 }

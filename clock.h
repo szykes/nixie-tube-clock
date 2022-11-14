@@ -25,6 +25,7 @@ void clock_init(void);
 void clock_timer_interrupt(void);
 
 void clock_update_time(time_st accurate_time);
+const time_st *clock_get_time(void);
 
 void clock_main(void);
 

@@ -68,6 +68,8 @@ target_compile_options(nixie-tube-clock PUBLIC
 
 target_link_options(nixie-tube-clock PUBLIC -mmcu=${MCU_GCC})
 
+target_link_libraries(nixie-tube-clock PUBLIC -lm)
+
 # Rename the output to .elf as we will create multiple files
 set_target_properties(nixie-tube-clock PROPERTIES OUTPUT_NAME nixie-tube-clock.elf)
 
