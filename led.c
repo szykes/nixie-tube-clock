@@ -118,7 +118,11 @@ void led_main(void) {
     }
     uint32_t base = secs % ((uint32_t) SEVENTH_OF_BRIGHT_PERIOD_IN_SECS + 1);
 
-    if(secs > (6 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    if(secs > (7 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+      red_ratio = 0;
+      green_ratio = 0;
+      blue_ratio = 0;
+    } else if(secs > (6 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
       red_ratio = 0;
       green_ratio = 0;
       blue_ratio = decreasing_ratio(base);
@@ -142,10 +146,14 @@ void led_main(void) {
       red_ratio = MAX_CNT;
       green_ratio = 0;
       blue_ratio = decreasing_ratio(base);
-    } else {
+    } else if (secs > 0) {
       red_ratio = increasing_ratio(base);
       green_ratio = 0;
       blue_ratio = increasing_ratio(base);
+    } else {
+      red_ratio = 0;
+      green_ratio = 0;
+      blue_ratio = 0;
     }
   }
 }
