@@ -76,15 +76,15 @@ ISR(TIMER0_OVF_vect) {
     }
   }
 
-  if(cnt == red_ratio) {
+  if(cnt >= red_ratio) {
     gpio_led_red_reset();
   }
 
-  if(cnt == green_ratio) {
+  if(cnt >= green_ratio) {
     gpio_led_green_reset();
   }
 
-  if(cnt == blue_ratio) {
+  if(cnt >= blue_ratio) {
     gpio_led_blue_reset();
   }
 
