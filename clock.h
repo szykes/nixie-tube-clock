@@ -3,6 +3,14 @@
 
 #include <stdint.h>
 
+#define MIN_HOUR_10 (0u)
+#define MIN_HOUR_1 (6u)
+#define MIN_MIN_10 (3u)
+
+#define MAX_HOUR_10 (2u)
+#define MAX_HOUR_1 (2u)
+#define MAX_MIN_10 (3u)
+
 typedef struct time_st {
   uint8_t hour_10;
   uint8_t hour_1;

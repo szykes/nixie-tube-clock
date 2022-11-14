@@ -272,10 +272,10 @@ static void calculate_time(void) {
 
 static void dark_period(void) {
   // turn off displaying between: 22:30 - 06:30
-  if(((time_data.hour_10 == 2) && (time_data.hour_1 >= 3)) ||
-     ((time_data.hour_10 == 2) && (time_data.hour_1 == 2) && (time_data.min_10 >= 3)) ||
-     ((time_data.hour_10 == 0) && (time_data.hour_1 <= 5)) ||
-     ((time_data.hour_10 == 0) && (time_data.hour_1 == 6) && (time_data.min_10 <= 2))) {
+  if(((time_data.hour_10 == MAX_HOUR_10) && (time_data.hour_1 > MAX_HOUR_1)) ||
+     ((time_data.hour_10 == MAX_HOUR_10) && (time_data.hour_1 == MAX_HOUR_1) && (time_data.min_10 >= MAX_MIN_10)) ||
+     ((time_data.hour_10 == MIN_HOUR_10) && (time_data.hour_1 < MIN_HOUR_1)) ||
+     ((time_data.hour_10 == MIN_HOUR_10) && (time_data.hour_1 == MIN_HOUR_1) && (time_data.min_10 < MIN_MIN_10))) {
     gpio_polarity_reset();
     gpio_blanking_set();
     led_is_dark_period(true);
