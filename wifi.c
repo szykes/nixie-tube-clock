@@ -18,9 +18,9 @@
 
 #include "gpio.h"
 
-#define AT_CMD_TIMER_STOP    0
-#define AT_CMD_TIMER_DEFAULT 2
-#define AT_CMD_TIMER_LONG    10
+static const uint8_t EPS_TIMER_STOP = 0;
+static const uint8_t ESP_TIMER_DEFAULT = 2;
+static const uint8_t ESP_TIMER_LONG = 10;
 
 typedef enum {
   AT_CMD_TYPE_NONE = 0,
@@ -47,13 +47,13 @@ static void esp_timer_start(int8_t timeout_sec) {
 }
 
 static void esp_timer_stop(void) {
-  esp_timer = AT_CMD_TIMER_STOP;
+  esp_timer = EPS_TIMER_STOP;
 }
 
 static void esp_timer_counter(void) {
-  if (esp_timer > AT_CMD_TIMER_STOP) {
+  if (esp_timer > EPS_TIMER_STOP) {
     esp_timer--;
-    if (esp_timer <= AT_CMD_TIMER_STOP) {
+    if (esp_timer <= EPS_TIMER_STOP) {
       esp_reset = true;
     }
   }
@@ -83,7 +83,7 @@ static void send_alive_check(void) {
 
   sent_at_cmd = AT_CMD_TYPE_AT;
 
-  esp_timer_start(AT_CMD_TIMER_DEFAULT);
+  esp_timer_start(ESP_TIMER_DEFAULT);
 }
 
 static void send_set_wifi_mode(void) {
@@ -92,7 +92,7 @@ static void send_set_wifi_mode(void) {
 
   sent_at_cmd = AT_CMD_TYPE_SET_CWMODE;
 
-  esp_timer_start(AT_CMD_TIMER_DEFAULT);
+  esp_timer_start(ESP_TIMER_DEFAULT);
 }
 
 static void send_connect_to_ap(void) {
@@ -101,7 +101,7 @@ static void send_connect_to_ap(void) {
 
   sent_at_cmd = AT_CMD_TYPE_SET_CWJAP;
 
-  esp_timer_start(AT_CMD_TIMER_LONG);
+  esp_timer_start(ESP_TIMER_LONG);
 }
 
 static void send_set_multiple_connections_mode(void) {
@@ -110,7 +110,7 @@ static void send_set_multiple_connections_mode(void) {
 
   sent_at_cmd = AT_CMD_TYPE_SET_CIPMUX;
 
-  esp_timer_start(AT_CMD_TIMER_DEFAULT);
+  esp_timer_start(ESP_TIMER_DEFAULT);
 }
 
 static void send_create_tcp_server(void) {
@@ -119,7 +119,7 @@ static void send_create_tcp_server(void) {
 
   sent_at_cmd = AT_CMD_TYPE_SET_CIPSERVER;
 
-  esp_timer_start(AT_CMD_TIMER_DEFAULT);
+  esp_timer_start(ESP_TIMER_DEFAULT);
 }
 
 static void send_establish_tcp_connection(void) {
@@ -128,7 +128,7 @@ static void send_establish_tcp_connection(void) {
 
   sent_at_cmd = AT_CMD_TYPE_SET_CIPSTART;
 
-  esp_timer_start(AT_CMD_TIMER_DEFAULT);
+  esp_timer_start(ESP_TIMER_DEFAULT);
 }
 
 static void response_handler_alive_check(const char *buf, size_t len) {
@@ -181,51 +181,20 @@ static void response_handler_create_tcp_server(const char *buf, size_t len) {
   }
 }
 
-static void resp_data_to_rgb_ratio(const char *buf, size_t len) {
-  enum {
-    RED = 0,
-    GREEN = 1,
-    BLUE = 2,
-  } state = RED;
-
-  for(size_t i = 0; i < len; i++) {
-    if (buf[i] == ';') {
-      switch (state) {
-      case RED:
-	led_set_red_ratio(atoi(buf + i + 1));
-	state = GREEN;
-	break;
-      case GREEN:
-	led_set_green_ratio(atoi(buf + i + 1));
-	state = BLUE;
-	break;
-      case BLUE:
-	led_set_blue_ratio(atoi(buf + i + 1));
-	return;
-	break;
-      default:
-	break;
-      }
-    }
-  }
-}
-
 static void response_handler_establish_tcp_connection(const char *buf, size_t len) {
   if (buf[0] == 'O') { // response OK
     esp_timer_stop();
   } else if (buf[0] == '+' && buf[1] == 'I' && buf[2] == 'P' && buf[3] == 'D') {
-    // example event: +IPD,0,xx:134639;r;g;b;0,CLOSED
+    // example event: +IPD,0,x:1346390,CLOSED
 
     time_st accurate_time;
-    accurate_time.hour_10 = buf[10] - '0';
-    accurate_time.hour_1 = buf[11] - '0';
-    accurate_time.min_10 = buf[12] - '0';
-    accurate_time.min_1 = buf[13] - '0';
-    accurate_time.sec_10 = buf[14] - '0';
-    accurate_time.sec_1 = buf[15] - '0';
+    accurate_time.hour_10 = buf[9] - '0';
+    accurate_time.hour_1 = buf[10] - '0';
+    accurate_time.min_10 = buf[11] - '0';
+    accurate_time.min_1 = buf[12] - '0';
+    accurate_time.sec_10 = buf[13] - '0';
+    accurate_time.sec_1 = buf[14] - '0';
     clock_update_time(accurate_time);
-
-    resp_data_to_rgb_ratio(buf, len);
 
     gpio_reset_ch_pd();
 
@@ -325,7 +294,7 @@ void wifi_init(void) {
   gpio_set_ch_pd();
   gpio_esp_set();
 
-  esp_timer_start(AT_CMD_TIMER_LONG);
+  esp_timer_start(ESP_TIMER_LONG);
 }
 
 void wifi_timer_interrupt(void) {
