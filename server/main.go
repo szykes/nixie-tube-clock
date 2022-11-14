@@ -8,9 +8,6 @@ import (
 )
 
 const port = "1234"
-const red_ratio = 5
-const green_ratio = 0
-const blue_ratio = 5
 
 func convertIntToString(number int) string {
 	str := strconv.Itoa(number)
@@ -40,13 +37,6 @@ func main() {
 			data_str := convertIntToString(t.Hour())
 			data_str += convertIntToString(t.Minute())
 			data_str += convertIntToString(t.Second())
-			data_str += ";"
-			data_str += convertIntToString(red_ratio)
-			data_str += ";"
-			data_str += convertIntToString(green_ratio)
-			data_str += ";"
-			data_str += convertIntToString(blue_ratio)
-			data_str += ";"
 
 			time_byte := []byte(data_str)
 
