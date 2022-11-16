@@ -1,5 +1,11 @@
 # nixie-tube-clock
 
+## Docker
+
+```
+docker build -t time-server:v1.0 .
+docker-compose up -d
+```
 
 ## Hardware
 
