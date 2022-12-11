@@ -52,7 +52,7 @@ static uint8_t time_raw_data[8];
 static volatile bool increment_time = false;
 static volatile bool resetting_glimm = false;
 
-static void clear_time_data(void) {
+static void clear_time_raw_data(void) {
   memset(&time_raw_data, 0x00, sizeof(time_raw_data));
 }
 
@@ -223,7 +223,7 @@ static void set_sec_1(uint8_t sec) {
 }
 
 static void calculate_time(void) {
-  clear_time_data();
+  clear_time_raw_data();
 
   time_data.sec_1++;
 
@@ -254,6 +254,7 @@ static void calculate_time(void) {
 
   if((time_data.hour_10 >= 2) && (time_data.hour_1 >= 4)) {
     time_data.hour_10 = 0;
+    time_data.hour_1 = 0;
   }
 
   set_hour_10(time_data.hour_10);
@@ -310,8 +311,8 @@ void clock_init(void) {
   gpio_polarity_set();
   gpio_latch_enable_set();
 
-  time_data.hour_10 = 1;
-  time_data.hour_1 = 2;
+  time_data.hour_10 = 2;
+  time_data.hour_1 = 0;
 
   calculate_time();
 
