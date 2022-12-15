@@ -1,5 +1,11 @@
 # nixie-tube-clock
 
+![ezgif com-gif-maker-3](https://user-images.githubusercontent.com/8822138/207956721-9b5c9171-c8a4-4f95-b3d6-a76d2fb03cdc.gif)
+
+![IMG_2297](https://user-images.githubusercontent.com/8822138/207957011-6f1c9aab-68bf-4625-8830-9e2ad03c3db7.jpg)
+
+![IMG_2301](https://user-images.githubusercontent.com/8822138/207957017-dbd5976a-45c0-4ff2-803f-f5abd02fd5ed.jpg)
+
 ## Docker
 
 ```
