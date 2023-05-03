@@ -6,6 +6,15 @@
 
 ![IMG_2301](https://user-images.githubusercontent.com/8822138/207957017-dbd5976a-45c0-4ff2-803f-f5abd02fd5ed.jpg)
 
+At first I declared my requirements for my ideal clock. Here are the requirements:
+  * No touch working: there shall not be any button or something like that but the clock shall follow daylight saving time or it shall be set after a power outage.
+  * Dust resistant: the dust shall not affect the visibility of clock and it shall not be on the PCB and parts.
+  * Beautiful: The clock shall have maximum 2 dominant colors (PCB, parts and enclosure).
+  
+To implement "no touch working" I used a Wifi module to query the accureate time from my home server.
+For "dust resistant" requirement I put the clock in a plastic enclosure to procect the core of clock.
+"Beautiful" is implemented by selecting white PCB and mostly black parts.
+
 ## Docker
 
 ```
