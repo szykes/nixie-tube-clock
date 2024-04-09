@@ -1,0 +1,41 @@
+---
+name: Verify clock source
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '*.c'
+      - '*.h'
+      - 'CMakeLists.txt'
+      - '.github/workflows/verify-clock-source.yaml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build binary
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install gcc-avr
+        shell: bash
+        run: sudo apt update && sudo apt install avr-libc gcc-avr
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.29.1'
+      - name: Build CMake project
+        run: |
+          mkdir build
+          cmake -S . -B build
+      - name: Build binary
+        run: make -C build -j4 nixie-tube-clock
