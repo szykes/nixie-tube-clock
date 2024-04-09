@@ -1,8 +1,9 @@
 version: "3.9"
 services:
   time-server:
-    container_name: time-server
-    image: time-server:v1.0
+    container_name: nixie-tube-clock
+    image: ghcr.io/szykes/nixie-tube-clock:main
+    pull_policy: always
     ports:
       - 1234:1234
     restart: unless-stopped
