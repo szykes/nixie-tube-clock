@@ -32,6 +32,7 @@ set(CMAKE_C_COMPILER avr-gcc)
 set(CMAKE_ASM_COMPILER avr-gcc)
 
 add_executable(nixie-tube-clock
+  avr.c
   main.c
   clock.c
   led.c

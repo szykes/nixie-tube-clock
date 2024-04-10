@@ -16,7 +16,7 @@
 #define BAUD 115200
 #include <util/setbaud.h>
 
-#include "gpio.h"
+#include "avr.h"
 
 static const uint8_t EPS_TIMER_STOP = 0;
 static const uint8_t ESP_TIMER_DEFAULT = 2;

@@ -1,7 +1,7 @@
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
 
-#include "gpio.h"
+#include "avr.h"
 #include "wifi.h"
 #include "led.h"
 #include "clock.h"
