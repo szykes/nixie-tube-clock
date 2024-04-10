@@ -1,6 +1,4 @@
 #include "wifi.h"
-#include "clock.h"
-#include "led.h"
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -8,15 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
-#include <util/delay.h>
-
-#define BAUD 115200
-#include <util/setbaud.h>
-
 #include "avr.h"
+#include "clock.h"
+#include "led.h"
 
 static const uint8_t EPS_TIMER_STOP = 0;
 static const uint8_t ESP_TIMER_DEFAULT = 2;
@@ -59,21 +51,16 @@ static void esp_timer_counter(void) {
   }
 }
 
-static void send_data_exec(char data) {
-  while (!(UCSRA & (1 << UDRE)));
-  UDR = data;
-}
-
 static void send_data(const char *data, size_t len) {
   size_t i = 0;
 
   for(i = 0; i < len && data[i] != '\0'; i++) {
-    send_data_exec(data[i]);
+    uart_send_data(data[i]);
   }
 
   if(len >= 2 && data[0] == 'A' && data[1] == 'T') {
-    send_data_exec('\r');
-    send_data_exec('\n');
+    uart_send_data('\r');
+    uart_send_data('\n');
   }
 }
 
@@ -231,7 +218,7 @@ static void read_recv_buffer(void) {
   char buf[sizeof(recv_buffer)];
   size_t len = 0;
 
-  cli();
+  mcu_cli();
 
   if(recv_buffer_len > 0) {
     size_t i;
@@ -245,7 +232,7 @@ static void read_recv_buffer(void) {
 
   recv_buffer_len = 0;
 
-  sei();
+  mcu_sei();
 
   if(len == 0) {
     return;
@@ -254,18 +241,16 @@ static void read_recv_buffer(void) {
   parse_response(buf, len);
 }
 
-ISR(USART_RXC_vect) {
+void wifi_receive_data(char data) {
   static char buf[sizeof(recv_buffer)];
   static size_t idx;
 
-  char temp = UDR;
-
   if(idx < (sizeof(recv_buffer) - 1)) {
-    buf[idx] = temp;
+    buf[idx] = data;
     idx++;
   }
 
-  if(temp == '\n') {
+  if(data == '\n') {
     size_t i;
 
     buf[idx] = '\0';
@@ -280,16 +265,7 @@ ISR(USART_RXC_vect) {
 }
 
 void wifi_init(void) {
-  UBRRH = UBRRH_VALUE;
-  UBRRL = UBRRL_VALUE;
-#if USE_2X
-  UCSRA |= (1 << U2X);
-#else
-  UCSRA &= ~(1 << U2X);
-#endif
-
-  UCSRC = (1 << URSEL) | (1 << UCSZ1) | (1 << UCSZ0);
-  UCSRB = (1 << RXCIE) | (1 << RXEN) | (1 << TXEN);
+  uart_init();
 
   gpio_set_ch_pd();
   gpio_esp_set();

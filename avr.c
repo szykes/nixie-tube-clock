@@ -1,11 +1,42 @@
+#include "avr.h"
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
 
-#include "avr.h"
+#define BAUD 115200
+#include <util/setbaud.h>
+
+#include "wifi.h"
 
 void mcu_sei(void) {
   sei();
+}
+
+void mcu_cli(void) {
+  cli();
+}
+
+void uart_init(void) {
+  UBRRH = UBRRH_VALUE;
+  UBRRL = UBRRL_VALUE;
+#if USE_2X
+  UCSRA |= (1 << U2X);
+#else
+  UCSRA &= ~(1 << U2X);
+#endif
+
+  UCSRC = (1 << URSEL) | (1 << UCSZ1) | (1 << UCSZ0);
+  UCSRB = (1 << RXCIE) | (1 << RXEN) | (1 << TXEN);
+}
+
+void uart_send_data(char data) {
+  while (!(UCSRA & (1 << UDRE)));
+  UDR = data;
+}
+
+ISR(USART_RXC_vect) {
+  wifi_receive_data(UDR);
 }
 
 void gpio_init(void) {

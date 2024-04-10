@@ -2,6 +2,10 @@
 #define AVR_H_
 
 void mcu_sei(void);
+void mcu_cli(void);
+
+void uart_init(void);
+void uart_send_data(char data);
 
 void gpio_init(void);
 void gpio_led_red_set(void);
