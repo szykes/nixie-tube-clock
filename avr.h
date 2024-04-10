@@ -7,6 +7,8 @@ void mcu_cli(void);
 void uart_init(void);
 void uart_send_data(char data);
 
+void timer0_init(unsigned char cnt);
+
 void gpio_init(void);
 void gpio_led_red_set(void);
 void gpio_led_red_reset(void);

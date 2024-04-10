@@ -7,6 +7,7 @@
 #define BAUD 115200
 #include <util/setbaud.h>
 
+#include "led.h"
 #include "wifi.h"
 
 void mcu_sei(void) {
@@ -15,6 +16,21 @@ void mcu_sei(void) {
 
 void mcu_cli(void) {
   cli();
+}
+
+void timer0_init(unsigned char cnt) {
+  // TCCR0A = 0x00;
+
+  // 7 372 800 Hz clk / 256 -> timer input: 28 800 Hz
+  TCCR0 = (1 << CS02);
+
+  TCNT0 = cnt;
+
+  TIMSK = (1 << TOIE0);
+}
+
+ISR(TIMER0_OVF_vect) {
+  TCNT0 = led_isr();
 }
 
 void uart_init(void) {

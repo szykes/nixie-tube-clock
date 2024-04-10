@@ -6,6 +6,8 @@
 
 static const uint8_t kLedOneSecCnt = 120;
 
+unsigned char led_isr(void);
+
 void led_init(void);
 
 void led_timer_interrupt(void);

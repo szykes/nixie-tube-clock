@@ -4,9 +4,6 @@
 #include <stdint.h>
 #include <math.h>
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
 #include "avr.h"
 #include "wifi.h"
 #include "clock.h"
@@ -58,7 +55,7 @@ static uint8_t decreasing_ratio(uint32_t base) {
   return MAX_CNT - (ratio > MAX_CNT ? MAX_CNT : ratio);
 }
 
-ISR(TIMER0_OVF_vect) {
+unsigned char led_isr(void) {
   static uint8_t cnt = 0;
 
   if(cnt >= MAX_CNT) {
@@ -90,18 +87,11 @@ ISR(TIMER0_OVF_vect) {
 
   cnt++;
 
-  TCNT0 = TIMER_INIT_CNT;
+  return TIMER_INIT_CNT;
 }
 
 void led_init(void) {
-  // TCCR0A = 0x00;
-
-  // 7 372 800 Hz clk / 256 -> timer input: 28 800 Hz
-  TCCR0 = (1 << CS02);
-
-  TCNT0 = TIMER_INIT_CNT;
-
-  TIMSK = (1 << TOIE0);
+  timer0_init(TIMER_INIT_CNT);
 }
 
 void led_timer_interrupt(void) {
