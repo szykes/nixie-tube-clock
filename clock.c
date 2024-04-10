@@ -5,8 +5,6 @@
 #include <stdbool.h>
 #include <limits.h>
 
-#include <avr/interrupt.h>
-
 #include "avr.h"
 #include "led.h"
 #include "wifi.h"
