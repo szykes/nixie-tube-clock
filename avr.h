@@ -1,6 +1,8 @@
 #ifndef AVR_H_
 #define AVR_H_
 
+void mcu_sei(void);
+
 void gpio_init(void);
 void gpio_led_red_set(void);
 void gpio_led_red_reset(void);
@@ -21,5 +23,8 @@ void gpio_esp_set(void);
 void gpio_esp_reset(void);
 void gpio_set_ch_pd(void);
 void gpio_reset_ch_pd(void);
+
+void wdt_init(void);
+void wdt_restart(void);
 
 #endif // AVR_H_

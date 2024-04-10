@@ -1,6 +1,12 @@
 #include <avr/io.h>
+#include <avr/interrupt.h>
+#include <avr/wdt.h>
 
 #include "avr.h"
+
+void mcu_sei(void) {
+  sei();
+}
 
 void gpio_init(void) {
   DDRB |= (1 << DDB0) | (1 << DDB1) | (1 << DDB3) | (1 << DDB5); // MOSI, SCK
@@ -83,4 +89,12 @@ void gpio_set_ch_pd(void) {
 
 void gpio_reset_ch_pd(void) {
   PORTD &= ~(1 << PD3);
+}
+
+void wdt_init(void) {
+  wdt_enable(WDTO_250MS);
+}
+
+void wdt_restart(void) {
+  wdt_reset();
 }
