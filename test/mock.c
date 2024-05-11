@@ -131,18 +131,18 @@ bool mock_is_succeeded(void) {
   for (int i = 0; i < sizeof(mock_calls)/sizeof(mock_call_st); i++) {
     if (mock_calls[i].is_recorded == false \
      && mock_calls[i].is_called == true) {
-      log_fail("Mock call(s) not expected, %s", mock_calls[i].result);
+      log_fail("Mock call(s) not expected at [%d], %s", i, mock_calls[i].result);
       return false;
     }
     if (mock_calls[i].is_recorded == true \
      && mock_calls[i].is_called == false) {
-      log_fail("Mock call(s) missing call, function is not expected here, function: '%s()'", mock_calls[i].function_name);
+      log_fail("Mock call(s) missing call at [%d], function is not expected here, function: '%s()'", i, mock_calls[i].function_name);
       return false;
     }
     if (mock_calls[i].is_recorded == true \
      && mock_calls[i].is_called == true \
      && mock_calls[i].is_matched == false) {
-      log_fail("Mock call(s) not matched, %s", mock_calls[i].result);
+      log_fail("Mock call(s) not matched at [%d], %s", i, mock_calls[i].result);
       return false;
     }
   }

@@ -10,13 +10,10 @@ void clock_timer_interrupt(void) {
 }
 
 void clock_update_time(time_st accurate_time) {
-  void *param_ptr;
-  mock_prepare_param(param_ptr, accurate_time);
-
   type_st params[] = {
     {
       .type = TYPE_UNSIGNED_CHAR,
-      .value = param_ptr,
+      .value = &accurate_time,
     }
   };
   mock_record(params, sizeof(params)/sizeof(type_st), NULL);

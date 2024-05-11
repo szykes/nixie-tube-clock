@@ -31,7 +31,7 @@ typedef struct {
   bool is_matched;
 } mock_call_st;
 
-#define NO_MOCK_CALLS 100
+#define NO_MOCK_CALLS 500
 
 extern mock_call_st mock_calls[NO_MOCK_CALLS];
 

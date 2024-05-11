@@ -5,6 +5,30 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 project(nixie-tube-clock)
 
 if (TEST)
+  add_library(common INTERFACE)
+
+  target_compile_definitions(common INTERFACE
+
+  )
+
+  target_include_directories(common INTERFACE
+    .
+    test
+  )
+
+  target_compile_options(common INTERFACE
+    -g
+    -std=c99
+    -Wall
+    -Werror
+    #-pedantic
+    -ftrapv
+    -fstack-check
+    -fstack-protector-all
+    -Wstack-protector
+    --param ssp-buffer-size=4
+  )
+
   add_executable(clock-test
     test/framework.c
     test/mock.c
@@ -18,14 +42,7 @@ if (TEST)
     clock.c
   )
 
-  target_compile_options(clock-test PUBLIC
-    -g
-    -std=c99
-    #-pedantic
-    -Wall
-    -Werror)
-
-  target_include_directories(clock-test PUBLIC . test)
+  target_link_libraries(clock-test PUBLIC common)
 
   add_custom_command(
     TARGET clock-test
@@ -47,14 +64,7 @@ if (TEST)
     led.c
   )
 
-  target_compile_options(led-test PUBLIC
-    -g
-    -std=c99
-    #-pedantic
-    -Wall
-    -Werror)
-
-  target_include_directories(led-test PUBLIC . test)
+  target_link_libraries(led-test PUBLIC common)
 
   add_custom_command(
     TARGET led-test
@@ -76,13 +86,6 @@ if (TEST)
     wifi.c
   )
 
-  target_compile_options(wifi-test PUBLIC
-    -g
-    -std=c99
-    #-pedantic
-    -Wall
-    -Werror)
-
   target_compile_definitions(wifi-test PUBLIC
     -DWIFI_SSID="wifi-ssid"
     -DWIFI_PASSWD="wifi-pass"
@@ -91,7 +94,7 @@ if (TEST)
     -DTIME_SERVER_PORT="time-server-port"
   )
 
-  target_include_directories(wifi-test PUBLIC . test)
+  target_link_libraries(wifi-test PUBLIC common)
 
   add_custom_command(
     TARGET wifi-test
