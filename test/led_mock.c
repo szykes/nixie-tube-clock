@@ -11,6 +11,7 @@ void led_is_dark_period(bool is_dark) {
     {
       .type = TYPE_BOOL,
       .value = &is_dark,
+      .size = sizeof(is_dark),
     }
   };
   mock_record(params, sizeof(params)/sizeof(type_st), NULL);

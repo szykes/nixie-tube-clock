@@ -12,8 +12,9 @@ void clock_timer_interrupt(void) {
 void clock_update_time(time_st accurate_time) {
   type_st params[] = {
     {
-      .type = TYPE_UNSIGNED_CHAR,
+      .type = TYPE_CONST_TIME_ST,
       .value = &accurate_time,
+      .size = sizeof(accurate_time),
     }
   };
   mock_record(params, sizeof(params)/sizeof(type_st), NULL);

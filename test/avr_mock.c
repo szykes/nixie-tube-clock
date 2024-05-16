@@ -17,8 +17,9 @@ void uart_init(void) {
 void uart_send_data(char data) {
   type_st params[] = {
     {
-      .type = TYPE_UNSIGNED_CHAR,
+      .type = TYPE_CHAR,
       .value = &data,
+      .size = sizeof(data),
     }
   };
   mock_record(params, sizeof(params)/sizeof(type_st), NULL);
@@ -27,8 +28,9 @@ void uart_send_data(char data) {
 void timer0_init(unsigned char cnt) {
   type_st params[] = {
     {
-      .type = TYPE_CHAR,
+      .type = TYPE_UNSIGNED_CHAR,
       .value = &cnt,
+      .size = sizeof(cnt),
     }
   };
   mock_record(params, sizeof(params)/sizeof(type_st), NULL);

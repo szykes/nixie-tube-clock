@@ -6,9 +6,9 @@
 #include "clock.h"
 
 static void set_wifi_init(void) {
-  mock_expect("uart_init", NULL, 0, NULL);
-  mock_expect("gpio_set_ch_pd", NULL, 0, NULL);
-  mock_expect("gpio_esp_set", NULL, 0, NULL);
+  mock_initiate_expectation("uart_init", NULL, 0, NULL);
+  mock_initiate_expectation("gpio_set_ch_pd", NULL, 0, NULL);
+  mock_initiate_expectation("gpio_esp_set", NULL, 0, NULL);
 
   wifi_init();
 }
@@ -19,9 +19,9 @@ static void set_esp_timer_default_timeout(void) {
     wifi_timer_interrupt();
   }
 
-  mock_expect("gpio_esp_reset", NULL, 0, NULL);
-  mock_expect("gpio_esp_set", NULL, 0, NULL);
-  mock_expect("gpio_reset_ch_pd", NULL, 0, NULL);
+  mock_initiate_expectation("gpio_esp_reset", NULL, 0, NULL);
+  mock_initiate_expectation("gpio_esp_set", NULL, 0, NULL);
+  mock_initiate_expectation("gpio_reset_ch_pd", NULL, 0, NULL);
 
   wifi_main();
 }
@@ -32,9 +32,9 @@ static void set_esp_timer_long_timeout(void) {
     wifi_timer_interrupt();
   }
 
-  mock_expect("gpio_esp_reset", NULL, 0, NULL);
-  mock_expect("gpio_esp_set", NULL, 0, NULL);
-  mock_expect("gpio_reset_ch_pd", NULL, 0, NULL);
+  mock_initiate_expectation("gpio_esp_reset", NULL, 0, NULL);
+  mock_initiate_expectation("gpio_esp_set", NULL, 0, NULL);
+  mock_initiate_expectation("gpio_reset_ch_pd", NULL, 0, NULL);
 
   wifi_main();
 }
@@ -48,9 +48,10 @@ static void mock_uart_send(const char* data) {
       {
 	.type = TYPE_CHAR,
 	.value = param_ptr,
+	.size = sizeof(data[i]),
       }
     };
-    mock_expect("uart_send_data", params, sizeof(params)/sizeof(type_st), NULL);
+    mock_initiate_expectation("uart_send_data", params, sizeof(params)/sizeof(type_st), NULL);
   }
 }
 
@@ -66,8 +67,8 @@ static void reach_send_alive_check(const char *str) {
     wifi_receive_data(str[i]);
   }
 
-  mock_expect("mcu_cli", NULL, 0, NULL);
-  mock_expect("mcu_sei", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_sei", NULL, 0, NULL);
 
   mock_uart_send("AT\r\n");
 
@@ -79,8 +80,8 @@ static void reach_set_wifi_mode(void) {
 
   set_wifi_receive_data("OK\r\n");
 
-  mock_expect("mcu_cli", NULL, 0, NULL);
-  mock_expect("mcu_sei", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_sei", NULL, 0, NULL);
 
   mock_uart_send("AT+CWMODE=1\r\n");
 
@@ -92,8 +93,8 @@ static void reach_connect_to_ap(void) {
 
   set_wifi_receive_data("OK\r\n");
 
-  mock_expect("mcu_cli", NULL, 0, NULL);
-  mock_expect("mcu_sei", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_sei", NULL, 0, NULL);
 
   mock_uart_send("AT+CWJAP=\"" WIFI_SSID "\",\"" WIFI_PASSWD "\"\r\n");
 
@@ -105,8 +106,8 @@ static void reach_set_multiple_connections_mode(void) {
 
   set_wifi_receive_data("OK\r\n");
 
-  mock_expect("mcu_cli", NULL, 0, NULL);
-  mock_expect("mcu_sei", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_sei", NULL, 0, NULL);
 
   mock_uart_send("AT+CIPMUX=1\r\n");
 
@@ -118,8 +119,8 @@ static void reach_create_tcp_server(void) {
 
   set_wifi_receive_data("OK\r\n");
 
-  mock_expect("mcu_cli", NULL, 0, NULL);
-  mock_expect("mcu_sei", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_sei", NULL, 0, NULL);
 
   mock_uart_send("AT+CIPSERVER=1," ESP_TCP_PORT "\r\n");
 
@@ -131,8 +132,8 @@ static void reach_establish_tcp_connection(void) {
 
   set_wifi_receive_data("OK\r\n");
 
-  mock_expect("mcu_cli", NULL, 0, NULL);
-  mock_expect("mcu_sei", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_sei", NULL, 0, NULL);
 
   mock_uart_send("AT+CIPSTART=0,\"TCP\",\"" TIME_SERVER_IP "\"," TIME_SERVER_PORT "\r\n");
 
@@ -179,8 +180,8 @@ static void tc_garbage_data_received(void) {
   set_wifi_receive_data("\xE0\xE1\xE2\xE3\xE4\xE5\xE6\xE7\xE8\xE9\xEA\xEB\xEC\xED\xEE\xEF");
   set_wifi_receive_data("\xF0\xF1\xF2\xF3\xF4\xF5\xF6\xF7\xF8\xF9\xFA\xFB\xFC\xFD\xFE\xFF");
 
-  mock_expect("mcu_cli", NULL, 0, NULL);
-  mock_expect("mcu_sei", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_sei", NULL, 0, NULL);
 
   wifi_main();
 
@@ -212,8 +213,8 @@ static void tc_frag_garbage_data_received(void) {
   for (int i = 0; i < sizeof(strs)/sizeof(char*); i++) {
     set_wifi_receive_data(strs[i]);
 
-    mock_expect("mcu_cli", NULL, 0, NULL);
-    mock_expect("mcu_sei", NULL, 0, NULL);
+    mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
+    mock_initiate_expectation("mcu_sei", NULL, 0, NULL);
 
     wifi_main();
   }
@@ -250,9 +251,9 @@ static void tc_alive_check_failed(void) {
 
   set_wifi_receive_data("ERROR\r\n");
 
-  mock_expect("mcu_cli", NULL, 0, NULL);
-  mock_expect("mcu_sei", NULL, 0, NULL);
-  mock_expect("gpio_reset_ch_pd", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_sei", NULL, 0, NULL);
+  mock_initiate_expectation("gpio_reset_ch_pd", NULL, 0, NULL);
 
   wifi_main();
 
@@ -276,9 +277,9 @@ static void tc_set_wifi_mode_failed(void) {
 
   set_wifi_receive_data("ERROR\r\n");
 
-  mock_expect("mcu_cli", NULL, 0, NULL);
-  mock_expect("mcu_sei", NULL, 0, NULL);
-  mock_expect("gpio_reset_ch_pd", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_sei", NULL, 0, NULL);
+  mock_initiate_expectation("gpio_reset_ch_pd", NULL, 0, NULL);
 
   wifi_main();
 
@@ -302,9 +303,9 @@ static void tc_connect_to_ap_failed(void) {
 
   set_wifi_receive_data("ERROR\r\n");
 
-  mock_expect("mcu_cli", NULL, 0, NULL);
-  mock_expect("mcu_sei", NULL, 0, NULL);
-  mock_expect("gpio_reset_ch_pd", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_sei", NULL, 0, NULL);
+  mock_initiate_expectation("gpio_reset_ch_pd", NULL, 0, NULL);
 
   wifi_main();
 
@@ -328,9 +329,9 @@ static void tc_set_multiple_connections_mode_failed(void) {
 
   set_wifi_receive_data("ERROR\r\n");
 
-  mock_expect("mcu_cli", NULL, 0, NULL);
-  mock_expect("mcu_sei", NULL, 0, NULL);
-  mock_expect("gpio_reset_ch_pd", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_sei", NULL, 0, NULL);
+  mock_initiate_expectation("gpio_reset_ch_pd", NULL, 0, NULL);
 
   wifi_main();
 
@@ -354,9 +355,9 @@ static void tc_create_tcp_server_failed(void) {
 
   set_wifi_receive_data("ERROR\r\n");
 
-  mock_expect("mcu_cli", NULL, 0, NULL);
-  mock_expect("mcu_sei", NULL, 0, NULL);
-  mock_expect("gpio_reset_ch_pd", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_sei", NULL, 0, NULL);
+  mock_initiate_expectation("gpio_reset_ch_pd", NULL, 0, NULL);
 
   wifi_main();
 
@@ -380,9 +381,9 @@ static void tc_establish_tcp_connection_failed(void) {
 
   set_wifi_receive_data("ERROR\r\n");
 
-  mock_expect("mcu_cli", NULL, 0, NULL);
-  mock_expect("mcu_sei", NULL, 0, NULL);
-  mock_expect("gpio_reset_ch_pd", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_sei", NULL, 0, NULL);
+  mock_initiate_expectation("gpio_reset_ch_pd", NULL, 0, NULL);
 
   wifi_main();
 
@@ -406,8 +407,8 @@ static void tc_establish_tcp_connection_succeed(void) {
 
   set_wifi_receive_data("OK\r\n");
 
-  mock_expect("mcu_cli", NULL, 0, NULL);
-  mock_expect("mcu_sei", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_sei", NULL, 0, NULL);
 
   wifi_main();
 
@@ -420,8 +421,8 @@ static void tc_establish_tcp_connection_succeed(void) {
 
   set_wifi_receive_data("+IPD,0,x:1234560,CLOSED\r\n");
 
-  mock_expect("mcu_cli", NULL, 0, NULL);
-  mock_expect("mcu_sei", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
+  mock_initiate_expectation("mcu_sei", NULL, 0, NULL);
 
   time_st time;
   time.hour_10 = 1;
@@ -438,11 +439,12 @@ static void tc_establish_tcp_connection_succeed(void) {
     {
       .type = TYPE_CONST_TIME_ST,
       .value = param_ptr,
+      .size = sizeof(time),
     }
   };
-  mock_expect("clock_update_time", params, sizeof(params)/sizeof(type_st), NULL);
+  mock_initiate_expectation("clock_update_time", params, sizeof(params)/sizeof(type_st), NULL);
 
-  mock_expect("gpio_reset_ch_pd", NULL, 0, NULL);
+  mock_initiate_expectation("gpio_reset_ch_pd", NULL, 0, NULL);
 
   wifi_main();
 
@@ -452,7 +454,7 @@ static void tc_establish_tcp_connection_succeed(void) {
 static void tc_wifi_query_timer(void) {
   TEST_BEGIN();
 
-  mock_expect("gpio_set_ch_pd", NULL, 0, NULL);
+  mock_initiate_expectation("gpio_set_ch_pd", NULL, 0, NULL);
 
   wifi_query_timer();
 
