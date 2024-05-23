@@ -52,6 +52,31 @@ if (TEST)
     VERBATIM
   )
 
+  add_executable(clock-all-secs-test
+    test/framework.c
+    test/mock.c
+
+    test/avr_mock.c
+    test/led_mock.c
+    test/wifi_mock.c
+
+    ${CMAKE_CURRENT_LIST_DIR}/test/clock_gen.c
+
+    test/clock_all_secs_tc.c
+
+    clock.c
+  )
+
+  target_link_libraries(clock-all-secs-test PUBLIC common)
+
+  add_custom_command(
+    TARGET clock-all-secs-test
+    POST_BUILD
+    COMMAND clock-all-secs-test
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    VERBATIM
+  )
+
   add_executable(led-test
     test/framework.c
     test/mock.c
@@ -81,7 +106,7 @@ if (TEST)
     test/avr_mock.c
     test/clock_mock.c
 
-    test/led_gen.c
+    ${CMAKE_CURRENT_LIST_DIR}/test/led_gen.c
 
     test/led_all_secs_tc.c
 
@@ -98,17 +123,18 @@ if (TEST)
     VERBATIM
   )
 
-  add_executable(led-gen
-    test/led_generator.c
+  add_executable(data-gen
+    test/data_generator.c
   )
 
-  target_link_libraries(led-gen PUBLIC common)
+  target_link_libraries(data-gen PUBLIC common)
 
   add_custom_command(
-    TARGET led-gen
-    POST_BUILD
-    COMMAND led-gen
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT ${CMAKE_CURRENT_LIST_DIR}/test/led_gen.c
+    OUTPUT ${CMAKE_CURRENT_LIST_DIR}/test/clock_gen.c
+    DEPENDS data-gen
+    COMMAND data-gen
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
     VERBATIM
   )
 
