@@ -74,6 +74,44 @@ if (TEST)
     VERBATIM
   )
 
+  add_executable(led-all-secs-test
+    test/framework.c
+    test/mock.c
+
+    test/avr_mock.c
+    test/clock_mock.c
+
+    test/led_gen.c
+
+    test/led_all_secs_tc.c
+
+    led.c
+  )
+
+  target_link_libraries(led-all-secs-test PUBLIC common)
+
+  add_custom_command(
+    TARGET led-all-secs-test
+    POST_BUILD
+    COMMAND led-all-secs-test
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    VERBATIM
+  )
+
+  add_executable(led-gen
+    test/led_generator.c
+  )
+
+  target_link_libraries(led-gen PUBLIC common)
+
+  add_custom_command(
+    TARGET led-gen
+    POST_BUILD
+    COMMAND led-gen
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    VERBATIM
+  )
+
   add_executable(wifi-test
     test/framework.c
     test/mock.c

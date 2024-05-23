@@ -24,7 +24,7 @@ void mock_clear_calls(void) {
   memset(&mock_calls, 0, sizeof(mock_calls));
 }
 
-void mock_initiate_expectation(const char *function_name, type_st *params, size_t no_params, type_st *ret) {
+void __mock_initiate_expectation(const char *function_name, type_st *params, size_t no_params, type_st *ret, const char *func, unsigned int line, const char *fmt, ...) {
   int i;
   for (i = 0; i < sizeof(mock_calls)/sizeof(mock_call_st); i++) {
     if (mock_calls[i].is_expected == false) {
@@ -48,6 +48,18 @@ void mock_initiate_expectation(const char *function_name, type_st *params, size_
 	mock_calls[i].ret = *ret;
       }
 
+      int size = snprintf(mock_calls[i].place, sizeof(mock_calls[i].place), "%s:%d", func, line);
+      if (size >= sizeof(mock_calls[i].place)) {
+	log_error("Place buffer too small, actual: %d, but needed: %d", sizeof(mock_calls[i].place), size);
+      }
+
+      va_list arglist;
+      va_start(arglist, fmt);
+      size = vsnprintf(mock_calls[i].message, sizeof(mock_calls[i].message), fmt, arglist);
+      if (size >= sizeof(mock_calls[i].message)) {
+	log_error("Message buffer too small, actual: %d, but needed: %d", sizeof(mock_calls[i].message), size);
+      }
+      va_end(arglist);
       break;
     }
   }
@@ -162,18 +174,18 @@ bool mock_is_succeeded(void) {
   for (int i = 0; i < sizeof(mock_calls)/sizeof(mock_call_st); i++) {
     if (mock_calls[i].is_expected == false \
      && mock_calls[i].is_called == true) {
-      log_fail("Mock call(s) not expected at [%d], %s", i, mock_calls[i].result);
+      log_fail("Mock call(s) not expected at [%d], %s, place: %s, message: %s", i, mock_calls[i].result, mock_calls[i].place, mock_calls[i].message);
       return false;
     }
     if (mock_calls[i].is_expected == true \
      && mock_calls[i].is_called == false) {
-      log_fail("Mock call(s) missing call at [%d], function is not expected here, function: '%s()'", i, mock_calls[i].function_name);
+      log_fail("Mock call(s) missing call at [%d], function is not expected here, function: '%s()', place: %s, message: %s", i, mock_calls[i].function_name, mock_calls[i].place, mock_calls[i].message);
       return false;
     }
     if (mock_calls[i].is_expected == true \
      && mock_calls[i].is_called == true \
      && mock_calls[i].is_matched == false) {
-      log_fail("Mock call(s) not matched at [%d], %s", i, mock_calls[i].result);
+      log_fail("Mock call(s) not matched at [%d], %s, place: %s, message: %s", i, mock_calls[i].result, mock_calls[i].place, mock_calls[i].message);
       return false;
     }
   }

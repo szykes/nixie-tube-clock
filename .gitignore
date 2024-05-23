@@ -5,4 +5,7 @@ cmake/
 cmake-test/
 compile_commands.json
 
+test/led_gen.c
+test/led_gen.h
+
 *~

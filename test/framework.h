@@ -4,7 +4,7 @@
 #define log_error(format, ...) own_log(__func__, __LINE__, "ERROR", format, ##__VA_ARGS__)
 #define log_fail(format, ...) own_log(__func__, __LINE__, "FAIL", format, ##__VA_ARGS__)
 #define log_info(format, ...) own_log(__func__, __LINE__, "INFO", format, ##__VA_ARGS__)
-#define log_test(format, ...) own_log(__func__, __LINE__, "TEST", format, ##__VA_ARGS__)
+#define log_test(format, ...) own_log("", 0, "TEST", format, ##__VA_ARGS__)
 
 void own_log(const char *func, unsigned int line, const char *lvl, const char *format, ...);
 
@@ -23,7 +23,7 @@ void own_log(const char *func, unsigned int line, const char *lvl, const char *f
 #define TEST_END()				\
   bool is_mock_succeeded = mock_is_succeeded();	\
   if (is_succeeded && is_mock_succeeded) {	\
-    log_info("Test succeeded");			\
+    log_test("Test succeeded");			\
   } else {					\
     log_fail("Test FAILED!!!!!");		\
   }
