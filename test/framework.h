@@ -14,9 +14,15 @@ void own_log(const char *func, unsigned int line, const char *lvl, const char *f
   bool is_succeeded = true;						\
   mock_clear_calls();
 
-#define TEST_ASSERT(condition, step)					\
-  if (!(condition)) {							\
-    log_fail("Step (%s) failed: %s", step, #condition);			\
+#define TEST_ASSERT_EQ(actual, expected, msg)				\
+  if (actual != expected) {						\
+    log_fail("not equal %s: actual: %d, expected: %d", msg, actual, expected); \
+    is_succeeded = false;						\
+  }
+
+#define TEST_ASSERT_BOOL(value)						\
+  if (!value) {								\
+    log_fail("not true");						\
     is_succeeded = false;						\
   }
 

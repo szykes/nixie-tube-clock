@@ -37,6 +37,8 @@ if (TEST)
     test/led_mock.c
     test/wifi_mock.c
 
+    test/clock_common.c
+
     test/clock_tc.c
 
     clock.c
@@ -60,6 +62,7 @@ if (TEST)
     test/led_mock.c
     test/wifi_mock.c
 
+    test/clock_common.c
     ${CMAKE_CURRENT_LIST_DIR}/test/clock_gen.c
 
     test/clock_all_secs_tc.c
