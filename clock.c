@@ -262,8 +262,11 @@ static void calculate_time(void) {
   set_sec_10(time_data.sec_10);
   set_sec_1(time_data.sec_1);
 
-  if((time_data.min_1 == 0 || time_data.min_1 == 5) &&
-    time_data.sec_10 == 0 &&
+  if(time_data.hour_10 == 1 &&
+     time_data.hour_1 == 2 &&
+     time_data.min_10 == 0 &&
+     time_data.min_1 == 0 &&
+     time_data.sec_10 == 0 &&
      time_data.sec_1 == 0) {
     wifi_query_timer();
   }

@@ -234,7 +234,10 @@ static bool set_half_second(time_st time, bool is_increment_time, bool is_dark_p
   clock_timer_interrupt();
 
   if (is_increment_time) {
-    if((time.min_1 == 0 || time.min_1 == 5) &&
+    if(time.hour_10 == 1 &&
+       time.hour_1 == 2 &&
+       time.min_10 == 0 &&
+       time.min_1 == 0 &&
        time.sec_10 == 0 &&
        time.sec_1 == 0) {
       mock_initiate_expectation("wifi_query_timer", NULL, 0, NULL);
