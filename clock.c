@@ -323,6 +323,8 @@ void clock_init(void) {
 void clock_timer_interrupt(void) {
   static uint8_t cnt = 0;
 
+  cnt++;
+
   if(cnt >= kLedOneSecCnt) {
     cnt = 0;
     increment_time = true;
@@ -333,8 +335,6 @@ void clock_timer_interrupt(void) {
   if(cnt == kLedOneSecCnt / 2) {
     resetting_glimm = true;
   }
-
-  cnt++;
 }
 
 void clock_update_time(time_st accurate_time) {

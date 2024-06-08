@@ -205,22 +205,14 @@ void set_time(time_st time, bool is_glimm) {
 }
 
 bool set_half_second(time_st *preset_time, time_st time, bool is_increment_time, bool is_dark_period) {
-  static int modifier = 0;
-
   if (preset_time != NULL) {
     clock_update_time(*preset_time);
   }
 
-  for (int cnt = 0; cnt < ((kLedOneSecCnt / 2) - modifier); cnt++) {
+  for (int cnt = 0; cnt < ((kLedOneSecCnt / 2) - 1); cnt++) {
     clock_timer_interrupt();
     clock_main();
   }
-
-  static bool is_first = true;
-  if (is_first) {
-    modifier = 1;
-  }
-  is_first = false;
 
   if (is_increment_time) {
     mock_initiate_expectation("wifi_timer_interrupt", NULL, 0, NULL);
