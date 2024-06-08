@@ -26,12 +26,31 @@ void own_log(const char *func, unsigned int line, const char *lvl, const char *f
     is_succeeded = false;						\
   }
 
-#define TEST_END()				\
-  bool is_mock_succeeded = mock_is_succeeded();	\
-  if (is_succeeded && is_mock_succeeded) {	\
-    log_test("Test succeeded");			\
-  } else {					\
-    log_fail("Test FAILED!!!!!");		\
+#define TEST_END()							\
+  bool is_mock_succeeded = mock_is_succeeded();				\
+  if (is_succeeded && is_mock_succeeded) {				\
+    log_test("Test succeeded");						\
+    return true;							\
+  }									\
+  log_fail("Test FAILED!!!!!");                                         \
+  return false;
+
+
+#define TEST_EVALUATE_INIT() bool is_succeeded = true;
+
+#define TEST_EVALUATE(value)						\
+  if (!value) {								\
+    is_succeeded = false;						\
   }
+
+#define TEST_EVALUATE_END()						\
+  log_test("--------------------------------------------------------"); \
+  if (is_succeeded) {							\
+    log_test("SUM: ALL Tests succeeded");				\
+    return 0;								\
+  }									\
+  log_fail("SUM: Some Test(s) FAILED!!!!!");				\
+  return 1;
+
 
 #endif // TEST_FRAMEWORK_H_

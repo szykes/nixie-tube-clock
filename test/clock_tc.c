@@ -10,7 +10,7 @@
 
 // 20:12:55 ekkor nem láttam a LED-et
 
-static void tc_clock_init(void) {
+static bool tc_clock_init(void) {
   TEST_BEGIN();
 
   mock_initiate_expectation("gpio_polarity_set", NULL, 0, NULL);
@@ -38,7 +38,7 @@ static void tc_clock_init(void) {
   TEST_END();
 }
 
-static void tc_set_get_time(void) {
+static bool tc_set_get_time(void) {
   TEST_BEGIN();
 
   time_st time = {
@@ -62,7 +62,7 @@ static void tc_set_get_time(void) {
   TEST_END();
 }
 
-static void tc_counting_clock_in_dark_period(void) {
+static bool tc_counting_clock_in_dark_period(void) {
   TEST_BEGIN();
 
   time_st expected_time = {
@@ -90,7 +90,7 @@ static void tc_counting_clock_in_dark_period(void) {
   TEST_END();
 }
 
-static void tc_counting_clock_in_bright_period(void) {
+static bool tc_counting_clock_in_bright_period(void) {
   TEST_BEGIN();
 
   time_st expected_time = {
@@ -118,7 +118,7 @@ static void tc_counting_clock_in_bright_period(void) {
   TEST_END();
 }
 
-static void tc_dark_period_after_midnight(void) {
+static bool tc_dark_period_after_midnight(void) {
   TEST_BEGIN();
 
   time_st expected_time = {
@@ -146,7 +146,7 @@ static void tc_dark_period_after_midnight(void) {
   TEST_END();
 }
 
-static void tc_dark_period_before_min_time(void) {
+static bool tc_dark_period_before_min_time(void) {
   TEST_BEGIN();
 
   time_st expected_time = {
@@ -174,7 +174,7 @@ static void tc_dark_period_before_min_time(void) {
   TEST_END();
 }
 
-static void tc_bright_period_at_min_time(void) {
+static bool tc_bright_period_at_min_time(void) {
   TEST_BEGIN();
 
   time_st expected_time = {
@@ -202,7 +202,7 @@ static void tc_bright_period_at_min_time(void) {
   TEST_END();
 }
 
-static void tc_bright_period_at_noon(void) {
+static bool tc_bright_period_at_noon(void) {
   TEST_BEGIN();
 
   time_st expected_time = {
@@ -230,7 +230,7 @@ static void tc_bright_period_at_noon(void) {
   TEST_END();
 }
 
-static void tc_bright_period_at_max_time(void) {
+static bool tc_bright_period_at_max_time(void) {
   TEST_BEGIN();
 
   time_st expected_time = {
@@ -258,7 +258,7 @@ static void tc_bright_period_at_max_time(void) {
   TEST_END();
 }
 
-static void tc_dark_period_after_max_time(void) {
+static bool tc_dark_period_after_max_time(void) {
   TEST_BEGIN();
 
   time_st expected_time = {
@@ -286,7 +286,7 @@ static void tc_dark_period_after_max_time(void) {
   TEST_END();
 }
 
-static void tc_dark_period_before_midnight(void) {
+static bool tc_dark_period_before_midnight(void) {
   TEST_BEGIN();
 
   time_st expected_time = {
@@ -315,16 +315,17 @@ static void tc_dark_period_before_midnight(void) {
 }
 
 int main(void) {
-  tc_clock_init();
-  tc_set_get_time();
-  tc_counting_clock_in_dark_period();
-  tc_counting_clock_in_bright_period();
-  tc_dark_period_after_midnight();
-  tc_dark_period_before_min_time();
-  tc_bright_period_at_min_time();
-  tc_bright_period_at_noon();
-  tc_bright_period_at_max_time();
-  tc_dark_period_after_max_time();
-  tc_dark_period_before_midnight();
-  return 0;
+  TEST_EVALUATE_INIT();
+  TEST_EVALUATE(tc_clock_init());
+  TEST_EVALUATE(tc_set_get_time());
+  TEST_EVALUATE(tc_counting_clock_in_dark_period());
+  TEST_EVALUATE(tc_counting_clock_in_bright_period());
+  TEST_EVALUATE(tc_dark_period_after_midnight());
+  TEST_EVALUATE(tc_dark_period_before_min_time());
+  TEST_EVALUATE(tc_bright_period_at_min_time());
+  TEST_EVALUATE(tc_bright_period_at_noon());
+  TEST_EVALUATE(tc_bright_period_at_max_time());
+  TEST_EVALUATE(tc_dark_period_after_max_time());
+  TEST_EVALUATE(tc_dark_period_before_midnight());
+  TEST_EVALUATE_END();
 }

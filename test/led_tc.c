@@ -23,7 +23,7 @@ static void set_rgb(time_st time, uint8_t red_ratio, uint8_t green_ratio, uint8_
   led_main();
 
   // RGB PWM is NOT set well at first
-  for (int cnt = 1; cnt < TEST_MAX_CNT; cnt++) {
+  for (size_t cnt = 1; cnt < TEST_MAX_CNT; cnt++) {
     if (cnt >= red_ratio) {
       mock_initiate_expectation_with_msg("gpio_led_red_reset", NULL, 0, NULL, "in for [%d] r: %d, g: %d, b: %d", cnt, red_ratio, green_ratio, blue_ratio);
     }
@@ -64,7 +64,7 @@ static void set_rgb(time_st time, uint8_t red_ratio, uint8_t green_ratio, uint8_
   led_main();
 
   // RGB PWM is set finally
-  for (int cnt = 1; cnt < TEST_MAX_CNT; cnt++) {
+  for (size_t cnt = 1; cnt < TEST_MAX_CNT; cnt++) {
     if (cnt >= red_ratio) {
       mock_initiate_expectation_with_msg("gpio_led_red_reset", NULL, 0, NULL, "in for [%d] r: %d, g: %d, b: %d", cnt, red_ratio, green_ratio, blue_ratio);
     }
@@ -105,7 +105,7 @@ static void set_rgb(time_st time, uint8_t red_ratio, uint8_t green_ratio, uint8_
   led_main();
 }
 
-static void tc_led_init(void) {
+static bool tc_led_init(void) {
   TEST_BEGIN();
 
   unsigned char init_cnt = TEST_TIMER_INIT_CNT;
@@ -127,10 +127,10 @@ static void tc_led_init(void) {
   TEST_END();
 }
 
-static void tc_led_isr_default(void) {
+static bool tc_led_isr_default(void) {
   TEST_BEGIN();
 
-  for (int cnt = 0; cnt < TEST_MAX_CNT; cnt++) {
+  for (size_t cnt = 0; cnt < TEST_MAX_CNT; cnt++) {
     mock_initiate_expectation("gpio_led_red_reset", NULL, 0, NULL);
     mock_initiate_expectation("gpio_led_green_reset", NULL, 0, NULL);
     mock_initiate_expectation("gpio_led_blue_reset", NULL, 0, NULL);
@@ -149,7 +149,7 @@ static void tc_led_isr_default(void) {
   TEST_END();
 }
 
-static void tc_led_timer_interrupt(void) {
+static bool tc_led_timer_interrupt(void) {
   TEST_BEGIN();
 
   set_rgb((time_st) {
@@ -173,7 +173,7 @@ static void tc_led_timer_interrupt(void) {
   TEST_END();
 }
 
-static void tc_rgbs_off_at_after_midnight(void) {
+static bool tc_rgbs_off_at_after_midnight(void) {
   TEST_BEGIN();
 
   set_rgb((time_st) {
@@ -188,7 +188,7 @@ static void tc_rgbs_off_at_after_midnight(void) {
   TEST_END();
 }
 
-static void tc_rgbs_off_at_min_time(void) {
+static bool tc_rgbs_off_at_min_time(void) {
   TEST_BEGIN();
 
   set_rgb((time_st) {
@@ -203,7 +203,7 @@ static void tc_rgbs_off_at_min_time(void) {
   TEST_END();
 }
 
-static void tc_rgbs_with_two_colors(void) {
+static bool tc_rgbs_with_two_colors(void) {
   TEST_BEGIN();
 
   set_rgb((time_st) {
@@ -218,7 +218,7 @@ static void tc_rgbs_with_two_colors(void) {
   TEST_END();
 }
 
-static void tc_rgbs_off_at_max_time(void) {
+static bool tc_rgbs_off_at_max_time(void) {
   TEST_BEGIN();
 
   set_rgb((time_st) {
@@ -233,7 +233,7 @@ static void tc_rgbs_off_at_max_time(void) {
   TEST_END();
 }
 
-static void tc_rgbs_off_at_before_midnight(void) {
+static bool tc_rgbs_off_at_before_midnight(void) {
   TEST_BEGIN();
 
   set_rgb((time_st) {
@@ -249,13 +249,14 @@ static void tc_rgbs_off_at_before_midnight(void) {
 }
 
 int main(void) {
-  tc_led_init();
-  tc_led_isr_default();
-  tc_led_timer_interrupt();
-  tc_rgbs_off_at_after_midnight();
-  tc_rgbs_off_at_min_time();
-  tc_rgbs_with_two_colors();
-  tc_rgbs_off_at_max_time();
-  tc_rgbs_off_at_before_midnight();
-  return 0;
+  TEST_EVALUATE_INIT();
+  TEST_EVALUATE(tc_led_init());
+  TEST_EVALUATE(tc_led_isr_default());
+  TEST_EVALUATE(tc_led_timer_interrupt());
+  TEST_EVALUATE(tc_rgbs_off_at_after_midnight());
+  TEST_EVALUATE(tc_rgbs_off_at_min_time());
+  TEST_EVALUATE(tc_rgbs_with_two_colors());
+  TEST_EVALUATE(tc_rgbs_off_at_max_time());
+  TEST_EVALUATE(tc_rgbs_off_at_before_midnight());
+  TEST_EVALUATE_END();
 }

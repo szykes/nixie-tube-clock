@@ -9,7 +9,7 @@
 
 #include "led.h"
 
-static void tc_rgbs_all_whole_day(void) {
+static bool tc_rgbs_all_whole_day(void) {
   bool is_all_suceeded = true;
 
   for (size_t i = 0; i < ((sizeof(tcs)/sizeof(clock_gen_st)) - 1); i++) {
@@ -41,7 +41,12 @@ static void tc_rgbs_all_whole_day(void) {
 	     second_time.time.sec_10, second_time.time.sec_1,
 	     second_time.is_dark_period);
 
-    TEST_END();
+    bool is_mock_succeeded = mock_is_succeeded();
+    if (is_succeeded && is_mock_succeeded) {
+      log_test("Test succeeded");
+    } else {
+      log_fail("Test FAILED!!!!!");
+    }
 
     if (!(is_succeeded && is_mock_succeeded)) {
       is_all_suceeded = false;
@@ -50,12 +55,12 @@ static void tc_rgbs_all_whole_day(void) {
 
   if (is_all_suceeded) {
     log_test("All tests succeeded");
-  } else {
-    log_fail("All tests FAILED!!!!!");
+    return true;
   }
+  log_fail("All tests FAILED!!!!!");
+  return false;
 }
 
 int main(void) {
-  tc_rgbs_all_whole_day();
-  return 0;
+  return tc_rgbs_all_whole_day() ? 0 : 1;
 }

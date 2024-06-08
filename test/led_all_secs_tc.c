@@ -23,7 +23,7 @@ static void set_rgb(time_st time, uint8_t red_ratio, uint8_t green_ratio, uint8_
   led_main();
 
   // RGB PWM is NOT set well at first
-  for (int cnt = 1; cnt < TEST_MAX_CNT; cnt++) {
+  for (size_t cnt = 1; cnt < TEST_MAX_CNT; cnt++) {
     if (cnt >= red_ratio) {
       mock_initiate_expectation_with_msg("gpio_led_red_reset", NULL, 0, NULL, "in for [%d] r: %d, g: %d, b: %d", cnt, red_ratio, green_ratio, blue_ratio);
     }
@@ -64,7 +64,7 @@ static void set_rgb(time_st time, uint8_t red_ratio, uint8_t green_ratio, uint8_
   led_main();
 
   // RGB PWM is set finally
-  for (int cnt = 1; cnt < TEST_MAX_CNT; cnt++) {
+  for (size_t cnt = 1; cnt < TEST_MAX_CNT; cnt++) {
     if (cnt >= red_ratio) {
       mock_initiate_expectation_with_msg("gpio_led_red_reset", NULL, 0, NULL, "in for [%d] r: %d, g: %d, b: %d", cnt, red_ratio, green_ratio, blue_ratio);
     }
@@ -105,8 +105,8 @@ static void set_rgb(time_st time, uint8_t red_ratio, uint8_t green_ratio, uint8_
   led_main();
 }
 
-static void tc_rgbs_all_whole_day(void) {
-  for (int cnt = 0; cnt < TEST_MAX_CNT; cnt++) {
+static bool tc_rgbs_all_whole_day(void) {
+  for (size_t cnt = 0; cnt < TEST_MAX_CNT; cnt++) {
     mock_initiate_expectation("gpio_led_red_reset", NULL, 0, NULL);
     mock_initiate_expectation("gpio_led_green_reset", NULL, 0, NULL);
     mock_initiate_expectation("gpio_led_blue_reset", NULL, 0, NULL);
@@ -133,7 +133,13 @@ static void tc_rgbs_all_whole_day(void) {
 	     tcs[i].red_ratio,
 	     tcs[i].green_ratio,
 	     tcs[i].blue_ratio);
-    TEST_END();
+
+    bool is_mock_succeeded = mock_is_succeeded();
+    if (is_succeeded && is_mock_succeeded) {
+      log_test("Test succeeded");
+    } else {
+      log_fail("Test FAILED!!!!!");
+    }
 
     if (!(is_succeeded && is_mock_succeeded)) {
       is_all_suceeded = false;
@@ -142,12 +148,12 @@ static void tc_rgbs_all_whole_day(void) {
 
   if (is_all_suceeded) {
     log_test("All tests succeeded");
-  } else {
-    log_fail("All tests FAILED!!!!!");
+    return true;
   }
+  log_fail("All tests FAILED!!!!!");
+  return false;
 }
 
 int main(void) {
-  tc_rgbs_all_whole_day();
-  return 0;
+  return tc_rgbs_all_whole_day() ? 0 : 1;
 }

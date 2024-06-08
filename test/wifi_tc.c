@@ -140,7 +140,7 @@ static void reach_establish_tcp_connection(void) {
   wifi_main();
 }
 
-static void tc_wifi_init(void) {
+static bool tc_wifi_init(void) {
   TEST_BEGIN();
 
   set_wifi_init();
@@ -148,7 +148,7 @@ static void tc_wifi_init(void) {
   TEST_END();
 }
 
-static void tc_esp_timer_long_timeout(void) {
+static bool tc_esp_timer_long_timeout(void) {
   TEST_BEGIN();
 
   set_wifi_init();
@@ -164,7 +164,7 @@ static void tc_esp_timer_long_timeout(void) {
   TEST_END();
 }
 
-static void tc_garbage_data_received(void) {
+static bool tc_garbage_data_received(void) {
   TEST_BEGIN();
 
   set_wifi_receive_data("\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F");
@@ -192,7 +192,7 @@ static void tc_garbage_data_received(void) {
   TEST_END();
 }
 
-static void tc_frag_garbage_data_received(void) {
+static bool tc_frag_garbage_data_received(void) {
   TEST_BEGIN();
 
   const char* strs[] = {
@@ -226,7 +226,7 @@ static void tc_frag_garbage_data_received(void) {
   TEST_END();
 }
 
-static void tc_send_alive_check_with_ready(void) {
+static bool tc_send_alive_check_with_ready(void) {
   TEST_BEGIN();
 
   reach_send_alive_check("ready\n");
@@ -234,7 +234,7 @@ static void tc_send_alive_check_with_ready(void) {
   TEST_END();
 }
 
-static void tc_send_alive_check_with_invalid(void) {
+static bool tc_send_alive_check_with_invalid(void) {
   TEST_BEGIN();
 
   set_wifi_init();
@@ -244,7 +244,7 @@ static void tc_send_alive_check_with_invalid(void) {
   TEST_END();
 }
 
-static void tc_alive_check_failed(void) {
+static bool tc_alive_check_failed(void) {
   TEST_BEGIN();
 
   reach_send_alive_check("ready\n");
@@ -260,7 +260,7 @@ static void tc_alive_check_failed(void) {
   TEST_END();
 }
 
-static void tc_alive_check_esp_timeout(void) {
+static bool tc_alive_check_esp_timeout(void) {
   TEST_BEGIN();
 
   reach_send_alive_check("ready\n");
@@ -270,7 +270,7 @@ static void tc_alive_check_esp_timeout(void) {
   TEST_END();
 }
 
-static void tc_set_wifi_mode_failed(void) {
+static bool tc_set_wifi_mode_failed(void) {
   TEST_BEGIN();
 
   reach_set_wifi_mode();
@@ -286,7 +286,7 @@ static void tc_set_wifi_mode_failed(void) {
   TEST_END();
 }
 
-static void tc_set_wifi_mode_esp_timeout(void) {
+static bool tc_set_wifi_mode_esp_timeout(void) {
   TEST_BEGIN();
 
   reach_set_wifi_mode();
@@ -296,7 +296,7 @@ static void tc_set_wifi_mode_esp_timeout(void) {
   TEST_END();
 }
 
-static void tc_connect_to_ap_failed(void) {
+static bool tc_connect_to_ap_failed(void) {
   TEST_BEGIN();
 
   reach_connect_to_ap();
@@ -312,7 +312,7 @@ static void tc_connect_to_ap_failed(void) {
   TEST_END();
 }
 
-static void tc_connect_to_ap_esp_timeout(void) {
+static bool tc_connect_to_ap_esp_timeout(void) {
   TEST_BEGIN();
 
   reach_connect_to_ap();
@@ -322,7 +322,7 @@ static void tc_connect_to_ap_esp_timeout(void) {
   TEST_END();
 }
 
-static void tc_set_multiple_connections_mode_failed(void) {
+static bool tc_set_multiple_connections_mode_failed(void) {
   TEST_BEGIN();
 
   reach_set_multiple_connections_mode();
@@ -338,7 +338,7 @@ static void tc_set_multiple_connections_mode_failed(void) {
   TEST_END();
 }
 
-static void tc_set_multiple_connections_mode_esp_timeout(void) {
+static bool tc_set_multiple_connections_mode_esp_timeout(void) {
   TEST_BEGIN();
 
   reach_set_multiple_connections_mode();
@@ -348,7 +348,7 @@ static void tc_set_multiple_connections_mode_esp_timeout(void) {
   TEST_END();
 }
 
-static void tc_create_tcp_server_failed(void) {
+static bool tc_create_tcp_server_failed(void) {
   TEST_BEGIN();
 
   reach_create_tcp_server();
@@ -364,7 +364,7 @@ static void tc_create_tcp_server_failed(void) {
   TEST_END();
 }
 
-static void tc_create_tcp_server_esp_timeout(void) {
+static bool tc_create_tcp_server_esp_timeout(void) {
   TEST_BEGIN();
 
   reach_create_tcp_server();
@@ -374,7 +374,7 @@ static void tc_create_tcp_server_esp_timeout(void) {
   TEST_END();
 }
 
-static void tc_establish_tcp_connection_failed(void) {
+static bool tc_establish_tcp_connection_failed(void) {
   TEST_BEGIN();
 
   reach_establish_tcp_connection();
@@ -390,7 +390,7 @@ static void tc_establish_tcp_connection_failed(void) {
   TEST_END();
 }
 
-static void tc_establish_tcp_connection_esp_timeout(void) {
+static bool tc_establish_tcp_connection_esp_timeout(void) {
   TEST_BEGIN();
 
   reach_establish_tcp_connection();
@@ -400,7 +400,7 @@ static void tc_establish_tcp_connection_esp_timeout(void) {
   TEST_END();
 }
 
-static void tc_establish_tcp_connection_succeed(void) {
+static bool tc_establish_tcp_connection_succeed(void) {
   TEST_BEGIN();
 
   reach_establish_tcp_connection();
@@ -451,7 +451,7 @@ static void tc_establish_tcp_connection_succeed(void) {
   TEST_END();
 }
 
-static void tc_wifi_query_timer(void) {
+static bool tc_wifi_query_timer(void) {
   TEST_BEGIN();
 
   mock_initiate_expectation("gpio_set_ch_pd", NULL, 0, NULL);
@@ -462,25 +462,26 @@ static void tc_wifi_query_timer(void) {
 }
 
 int main(void) {
-  tc_wifi_init();
-  tc_esp_timer_long_timeout();
-  tc_garbage_data_received();
-  tc_frag_garbage_data_received();
-  tc_send_alive_check_with_ready();
-  tc_send_alive_check_with_invalid();
-  tc_alive_check_failed();
-  tc_alive_check_esp_timeout();
-  tc_set_wifi_mode_failed();
-  tc_set_wifi_mode_esp_timeout();
-  tc_connect_to_ap_failed();
-  tc_connect_to_ap_esp_timeout();
-  tc_set_multiple_connections_mode_failed();
-  tc_set_multiple_connections_mode_esp_timeout();
-  tc_create_tcp_server_failed();
-  tc_create_tcp_server_esp_timeout();
-  tc_establish_tcp_connection_failed();
-  tc_establish_tcp_connection_esp_timeout();
-  tc_establish_tcp_connection_succeed();
-  tc_wifi_query_timer();
-  return 0;
+  TEST_EVALUATE_INIT();
+  TEST_EVALUATE(tc_wifi_init());
+  TEST_EVALUATE(tc_esp_timer_long_timeout());
+  TEST_EVALUATE(tc_garbage_data_received());
+  TEST_EVALUATE(tc_frag_garbage_data_received());
+  TEST_EVALUATE(tc_send_alive_check_with_ready());
+  TEST_EVALUATE(tc_send_alive_check_with_invalid());
+  TEST_EVALUATE(tc_alive_check_failed());
+  TEST_EVALUATE(tc_alive_check_esp_timeout());
+  TEST_EVALUATE(tc_set_wifi_mode_failed());
+  TEST_EVALUATE(tc_set_wifi_mode_esp_timeout());
+  TEST_EVALUATE(tc_connect_to_ap_failed());
+  TEST_EVALUATE(tc_connect_to_ap_esp_timeout());
+  TEST_EVALUATE(tc_set_multiple_connections_mode_failed());
+  TEST_EVALUATE(tc_set_multiple_connections_mode_esp_timeout());
+  TEST_EVALUATE(tc_create_tcp_server_failed());
+  TEST_EVALUATE(tc_create_tcp_server_esp_timeout());
+  TEST_EVALUATE(tc_establish_tcp_connection_failed());
+  TEST_EVALUATE(tc_establish_tcp_connection_esp_timeout());
+  TEST_EVALUATE(tc_establish_tcp_connection_succeed());
+  TEST_EVALUATE(tc_wifi_query_timer());
+  TEST_EVALUATE_END();
 }
