@@ -238,15 +238,6 @@ bool set_half_second(time_st *preset_time, time_st time, bool is_increment_time,
       bool is_dark_period = true;
       void *param_ptr;
       mock_prepare_param(param_ptr, is_dark_period);
-
-      type_st params[] = {
-	{
-	  .type = TYPE_BOOL,
-	  .size = sizeof(bool),
-	  .value = param_ptr,
-	},
-      };
-      mock_initiate_expectation("led_is_dark_period", params, sizeof(params)/sizeof(type_st), NULL);
     } else {
       mock_initiate_expectation("gpio_polarity_set", NULL, 0, NULL);
       mock_initiate_expectation("gpio_blanking_reset", NULL, 0, NULL);
@@ -254,15 +245,6 @@ bool set_half_second(time_st *preset_time, time_st time, bool is_increment_time,
       bool is_dark_period = false;
       void *param_ptr;
       mock_prepare_param(param_ptr, is_dark_period);
-
-      type_st params[] = {
-	{
-	  .type = TYPE_BOOL,
-	  .value = param_ptr,
-	  .size = sizeof(bool),
-	},
-      };
-      mock_initiate_expectation("led_is_dark_period", params, sizeof(params)/sizeof(type_st), NULL);
     }
   }
 

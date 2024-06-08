@@ -10,8 +10,8 @@
 mock_call_st mock_calls[NO_MOCK_CALLS];
 
 void mock_clear_calls(void) {
-  for (int i = 0; i < sizeof(mock_calls)/sizeof(mock_call_st); i++) {
-    for ( int j = 0; j < sizeof(mock_calls[i].params)/sizeof(type_st); j++) {
+  for (size_t i = 0; i < sizeof(mock_calls)/sizeof(mock_call_st); i++) {
+    for ( size_t j = 0; j < sizeof(mock_calls[i].params)/sizeof(type_st); j++) {
       if (mock_calls[i].params[j].value != NULL) {
 	free(mock_calls[i].params[j].value);
       }
@@ -25,7 +25,7 @@ void mock_clear_calls(void) {
 }
 
 void __mock_initiate_expectation(const char *function_name, type_st *params, size_t no_params, type_st *ret, const char *func, unsigned int line, const char *fmt, ...) {
-  int i;
+  size_t i;
   for (i = 0; i < sizeof(mock_calls)/sizeof(mock_call_st); i++) {
     if (mock_calls[i].is_expected == false) {
       mock_calls[i].is_expected = true;
@@ -40,7 +40,7 @@ void __mock_initiate_expectation(const char *function_name, type_st *params, siz
 	log_error("Not enough space for parameters, function: %s, no_params: %d", function_name, no_params);
 	break;
       }
-      for (int j = 0; j < no_params; j++) {
+      for (size_t j = 0; j < no_params; j++) {
 	memcpy(&mock_calls[i].params[j], &params[j], sizeof(type_st));
       }
 
@@ -123,7 +123,7 @@ static bool check_all_params(mock_call_st *mock_call, size_t idx, type_st *param
     return false;
   }
 
-  for (int i = 0; i < no_params; i++) {
+  for (size_t i = 0; i < no_params; i++) {
     if (!check_param(mock_call, idx, &mock_call->params[i], i, &params[i])) {
       return false;
     }
@@ -154,7 +154,7 @@ static void add_record(mock_call_st *mock_call, size_t idx, const char *function
 }
 
 void __mock_record(const char *function_name, type_st *params, size_t no_params, type_st *ret) {
-  int i;
+  size_t i;
   for (i = 0; i < sizeof(mock_calls)/sizeof(mock_call_st); i++) {
     if (mock_calls[i].is_called == false) {
       mock_calls[i].is_called = true;
@@ -171,7 +171,7 @@ void __mock_record(const char *function_name, type_st *params, size_t no_params,
 }
 
 bool mock_is_succeeded(void) {
-  for (int i = 0; i < sizeof(mock_calls)/sizeof(mock_call_st); i++) {
+  for (size_t i = 0; i < sizeof(mock_calls)/sizeof(mock_call_st); i++) {
     if (mock_calls[i].is_expected == false \
      && mock_calls[i].is_called == true) {
       log_fail("Mock call(s) not expected at [%d], %s, place: %s, message: %s", i, mock_calls[i].result, mock_calls[i].place, mock_calls[i].message);
