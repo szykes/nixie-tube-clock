@@ -36,12 +36,12 @@
 #define RATIO_MODIFIER 0
 
 static uint8_t increasing_ratio(uint32_t base) {
-  uint16_t ratio = roundf(base / (SEVENTH_OF_BRIGHT_PERIOD_IN_SECS / (float) (MAX_CNT + RATIO_MODIFIER)));
+  uint16_t ratio = lrintf(base / (SEVENTH_OF_BRIGHT_PERIOD_IN_SECS / (float) (MAX_CNT + RATIO_MODIFIER)));
   return (ratio > MAX_CNT ? MAX_CNT : ratio);
 }
 
 static uint8_t decreasing_ratio(uint32_t base) {
-  uint16_t ratio = roundf(base / (SEVENTH_OF_BRIGHT_PERIOD_IN_SECS / (float) (MAX_CNT + RATIO_MODIFIER)));
+  uint16_t ratio = lrintf(base / (SEVENTH_OF_BRIGHT_PERIOD_IN_SECS / (float) (MAX_CNT + RATIO_MODIFIER)));
   return MAX_CNT - (ratio > MAX_CNT ? MAX_CNT : ratio);
 }
 
@@ -165,7 +165,7 @@ static void fill_led_gen_c(void) {
 
     time_st time = convert_seconds_to_time_st(secs);
 
-    fprintf(fp, "  {.time = {.hour_10 = %d, .hour_1 = %d, .min_10 = %d, .min_1 = %d, .sec_10 = %d, .sec_1 = %d}, .red_ratio = %d, .green_ratio = %d, .blue_ratio = %d},\t// secs=%lld, time=%d%d:%d%d:%d%d, part='%s'\n",
+    fprintf(fp, "  {.time = {.hour_10 = %d, .hour_1 = %d, .min_10 = %d, .min_1 = %d, .sec_10 = %d, .sec_1 = %d}, .red_ratio = %d, .green_ratio = %d, .blue_ratio = %d},\t// secs=%ld, time=%d%d:%d%d:%d%d, part='%s'\n",
 	    time.hour_10, time.hour_1,
 	    time.min_10, time.min_1,
 	    time.sec_10, time.sec_1,

@@ -60,8 +60,8 @@ static void latch_enable(void) {
 }
 
 static void reset_glimm(void) {
-  time_raw_data[1] &= ~(3 << 0);
-  time_raw_data[7] &= ~(3 << 6);
+  time_raw_data[1] &= (uint8_t)~(3 << 0);
+  time_raw_data[7] &= (uint8_t)~(3 << 6);
 }
 
 static void set_glimm(void) {

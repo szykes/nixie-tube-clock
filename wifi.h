@@ -1,7 +1,9 @@
 #ifndef WIFI_H_
 #define WIFI_H_
 
-void wifi_receive_data(char data);
+#include <stdint.h>
+
+void wifi_receive_data(uint8_t data);
 
 void wifi_init(void);
 

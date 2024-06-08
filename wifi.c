@@ -10,9 +10,9 @@
 #include "clock.h"
 #include "led.h"
 
-static const uint8_t EPS_TIMER_STOP = 0;
-static const uint8_t ESP_TIMER_DEFAULT = 2;
-static const uint8_t ESP_TIMER_LONG = 10;
+static const int8_t EPS_TIMER_STOP = 0;
+static const int8_t ESP_TIMER_DEFAULT = 2;
+static const int8_t ESP_TIMER_LONG = 10;
 
 typedef enum {
   AT_CMD_TYPE_NONE = 0,
@@ -24,9 +24,9 @@ typedef enum {
   AT_CMD_TYPE_SET_CIPSTART,   // AT+CIPSTAR=
 } at_cmd_type;
 
-typedef void (*at_cmd_response_handler_func)(const char *buf, size_t len);
+typedef void (*at_cmd_response_handler_func)(const uint8_t *buf, size_t len);
 
-static volatile char recv_buffer[32];
+static volatile uint8_t recv_buffer[32];
 static volatile size_t recv_buffer_len;
 
 static volatile int8_t esp_timer = -1;
@@ -118,7 +118,7 @@ static void send_establish_tcp_connection(void) {
   esp_timer_start(ESP_TIMER_DEFAULT);
 }
 
-static void response_handler_alive_check(const char *buf, size_t len) {
+static void response_handler_alive_check(const uint8_t *buf, size_t len) {
   if (buf[0] == 'O') { // response OK
     esp_timer_stop();
 
@@ -128,7 +128,7 @@ static void response_handler_alive_check(const char *buf, size_t len) {
   }
 }
 
-static void response_handler_set_wifi_mode(const char *buf, size_t len) {
+static void response_handler_set_wifi_mode(const uint8_t *buf, size_t len) {
   if (buf[0] == 'O') { // response OK
     esp_timer_stop();
 
@@ -138,7 +138,7 @@ static void response_handler_set_wifi_mode(const char *buf, size_t len) {
   }
 }
 
-static void response_handler_connect_to_ap(const char *buf, size_t len) {
+static void response_handler_connect_to_ap(const uint8_t *buf, size_t len) {
   if (buf[0] == 'O') { // response OK
     esp_timer_stop();
 
@@ -148,7 +148,7 @@ static void response_handler_connect_to_ap(const char *buf, size_t len) {
   }
 }
 
-static void response_handler_set_multiple_connections_mode(const char *buf, size_t len) {
+static void response_handler_set_multiple_connections_mode(const uint8_t *buf, size_t len) {
   if (buf[0] == 'O') { // response OK
     esp_timer_stop();
 
@@ -158,7 +158,7 @@ static void response_handler_set_multiple_connections_mode(const char *buf, size
   }
 }
 
-static void response_handler_create_tcp_server(const char *buf, size_t len) {
+static void response_handler_create_tcp_server(const uint8_t *buf, size_t len) {
   if (buf[0] == 'O') { // response OK
     esp_timer_stop();
 
@@ -168,7 +168,7 @@ static void response_handler_create_tcp_server(const char *buf, size_t len) {
   }
 }
 
-static void response_handler_establish_tcp_connection(const char *buf, size_t len) {
+static void response_handler_establish_tcp_connection(const uint8_t *buf, size_t len) {
   if (buf[0] == 'O') { // response OK
     esp_timer_stop();
   } else if (buf[0] == '+' && buf[1] == 'I' && buf[2] == 'P' && buf[3] == 'D') {
@@ -200,7 +200,7 @@ static at_cmd_response_handler_func at_cmd_response_handler[] = {
   /* AT_CMD_TYPE_SET_CIPSTART  */ response_handler_establish_tcp_connection,
 };
 
-static void parse_response(const char *buf, size_t len) {
+static void parse_response(const uint8_t *buf, size_t len) {
   // some ESP01 response with 'ready' and some with 'invalid', when ESP is ready
   if ((buf[0] == 'r' && buf[1] == 'e' && buf[2] == 'a' && buf[3] == 'd' && buf[4] == 'y') ||
      (buf[0] == 'i' && buf[1] == 'n' && buf[2] == 'v' && buf[3] == 'a' && buf[4] == 'l')) {
@@ -215,7 +215,7 @@ static void parse_response(const char *buf, size_t len) {
 }
 
 static void read_recv_buffer(void) {
-  char buf[sizeof(recv_buffer)];
+  uint8_t buf[sizeof(recv_buffer)];
   size_t len = 0;
 
   mcu_cli();
@@ -241,8 +241,8 @@ static void read_recv_buffer(void) {
   parse_response(buf, len);
 }
 
-void wifi_receive_data(char data) {
-  static char buf[sizeof(recv_buffer)];
+void wifi_receive_data(uint8_t data) {
+  static uint8_t buf[sizeof(recv_buffer)];
   static size_t idx;
 
   if (idx < (sizeof(recv_buffer) - 1)) {

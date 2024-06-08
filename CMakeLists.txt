@@ -8,7 +8,7 @@ if (TEST)
   add_library(common INTERFACE)
 
   target_compile_definitions(common INTERFACE
-
+    -D_FORTIFY_SOURCE=2
   )
 
   target_include_directories(common INTERFACE
@@ -21,12 +21,14 @@ if (TEST)
     -std=c99
     -Wall
     -Werror
+    #-Wconversion
+    #-Wsign-conversion
+    -Wformat-security
     #-pedantic
     -ftrapv
-    -fstack-check
     -fstack-protector-all
-    -Wstack-protector
     --param ssp-buffer-size=4
+    -fstack-clash-protection
   )
 
   add_executable(clock-test
@@ -94,7 +96,10 @@ if (TEST)
     led.c
   )
 
-  target_link_libraries(led-test PUBLIC common)
+  target_link_libraries(led-test PUBLIC
+    common
+    m
+  )
 
   add_custom_command(
     TARGET led-test
@@ -119,7 +124,10 @@ if (TEST)
     led.c
   )
 
-  target_link_libraries(led-all-secs-test PUBLIC common)
+  target_link_libraries(led-all-secs-test PUBLIC
+    common
+    m
+  )
 
   add_custom_command(
     TARGET led-all-secs-test
@@ -133,7 +141,10 @@ if (TEST)
     test/data_generator.c
   )
 
-  target_link_libraries(data-gen PUBLIC common)
+  target_link_libraries(data-gen PUBLIC
+    common
+    m
+  )
 
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_LIST_DIR}/test/led_gen.c

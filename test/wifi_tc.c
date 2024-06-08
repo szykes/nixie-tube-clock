@@ -14,7 +14,7 @@ static void set_wifi_init(void) {
 }
 
 static void set_esp_timer_default_timeout(void) {
-  for (int i = 0; i < 2; i++) {
+  for (size_t i = 0; i < 2; i++) {
     wifi_main();
     wifi_timer_interrupt();
   }
@@ -27,7 +27,7 @@ static void set_esp_timer_default_timeout(void) {
 }
 
 static void set_esp_timer_long_timeout(void) {
-  for (int i = 0; i < 10; i++) {
+  for (size_t i = 0; i < 10; i++) {
     wifi_main();
     wifi_timer_interrupt();
   }
@@ -40,7 +40,7 @@ static void set_esp_timer_long_timeout(void) {
 }
 
 static void mock_uart_send(const char* data) {
-  for (int i = 0; i < strlen(data); i++) {
+  for (size_t i = 0; i < strlen(data); i++) {
     void *param_ptr;
     mock_prepare_param(param_ptr, data[i]);
 
@@ -56,15 +56,15 @@ static void mock_uart_send(const char* data) {
 }
 
 static void set_wifi_receive_data(const char *data) {
-  for (int i = 0; i < strlen(data); i++) {
-    wifi_receive_data(data[i]);
+  for (size_t i = 0; i < strlen(data); i++) {
+    wifi_receive_data((uint8_t)data[i]);
   }
 }
 
 static void reach_send_alive_check(const char *str) {
-  for (int i = 0; i < strlen(str); i++) {
+  for (size_t i = 0; i < strlen(str); i++) {
     wifi_main();
-    wifi_receive_data(str[i]);
+    wifi_receive_data((uint8_t)str[i]);
   }
 
   mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
@@ -156,7 +156,7 @@ static bool tc_esp_timer_long_timeout(void) {
   set_esp_timer_long_timeout();
 
   // no further action should be taken
-  for (int i = 0; i < 20; i++) {
+  for (size_t i = 0; i < 20; i++) {
     wifi_timer_interrupt();
     wifi_main();
   }
@@ -210,7 +210,7 @@ static bool tc_frag_garbage_data_received(void) {
     "\xF0\xF1\xF2\xF3\xF4\xF5\xF6\xF7\xF8\xF9\xFA\xFB\xFC\xFD\xFE\xFF\r\n",
   };
 
-  for (int i = 0; i < sizeof(strs)/sizeof(char*); i++) {
+  for (size_t i = 0; i < sizeof(strs)/sizeof(char*); i++) {
     set_wifi_receive_data(strs[i]);
 
     mock_initiate_expectation("mcu_cli", NULL, 0, NULL);
@@ -412,7 +412,7 @@ static bool tc_establish_tcp_connection_succeed(void) {
 
   wifi_main();
 
-  for (int i = 0; i < 10; i++) {
+  for (size_t i = 0; i < 10; i++) {
     wifi_main();
     wifi_timer_interrupt();
   }

@@ -209,7 +209,7 @@ bool set_half_second(time_st *preset_time, time_st time, bool is_increment_time,
     clock_update_time(*preset_time);
   }
 
-  for (int cnt = 0; cnt < ((kLedOneSecCnt / 2) - 1); cnt++) {
+  for (size_t cnt = 0; cnt < ((kLedOneSecCnt / 2) - 1); cnt++) {
     clock_timer_interrupt();
     clock_main();
   }
