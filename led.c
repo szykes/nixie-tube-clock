@@ -27,8 +27,6 @@
 
 static volatile bool is_calculate = false;
 
-static volatile bool is_dark_period = false;
-
 static volatile uint8_t red_ratio = 0;
 static volatile uint8_t green_ratio = 0;
 static volatile uint8_t blue_ratio = 0;
@@ -62,13 +60,13 @@ unsigned char led_isr(void) {
     cnt = 0;
     clock_timer_interrupt();
 
-    if(red_ratio != 0 && !is_dark_period) {
+    if(red_ratio != 0) {
       gpio_led_red_set();
     }
-    if(green_ratio != 0 && !is_dark_period) {
+    if(green_ratio != 0) {
       gpio_led_green_set();
     }
-    if(blue_ratio != 0 && !is_dark_period) {
+    if(blue_ratio != 0) {
       gpio_led_blue_set();
     }
   }
@@ -146,9 +144,4 @@ void led_main(void) {
       blue_ratio = 0;
     }
   }
-}
-
-// TODO: remove it
-void led_is_dark_period(bool is_dark) {
-  is_dark_period = is_dark;
 }
