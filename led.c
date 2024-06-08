@@ -23,7 +23,7 @@
 
 #define SEVENTH_OF_BRIGHT_PERIOD_IN_SECS (BRIGHT_PERIOD_IN_SECS / (float) 7)
 
-#define RATIO_MODIFIER 40
+#define RATIO_MODIFIER 0
 
 static volatile bool is_calculate = false;
 

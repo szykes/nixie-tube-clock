@@ -33,7 +33,7 @@
 
 #define SEVENTH_OF_BRIGHT_PERIOD_IN_SECS (BRIGHT_PERIOD_IN_SECS / (float) 7)
 
-#define RATIO_MODIFIER 40
+#define RATIO_MODIFIER 0
 
 static uint8_t increasing_ratio(uint32_t base) {
   uint16_t ratio = roundf(base / (SEVENTH_OF_BRIGHT_PERIOD_IN_SECS / (float) (MAX_CNT + RATIO_MODIFIER)));
