@@ -14,6 +14,4 @@ void led_timer_interrupt(void);
 
 void led_main(void);
 
-void led_is_dark_period(bool is_dark);
-
 #endif // LED_H

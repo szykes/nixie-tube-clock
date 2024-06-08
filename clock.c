@@ -280,11 +280,9 @@ static void dark_period(void) {
      ((time_data.hour_10 == MIN_HOUR_10) && (time_data.hour_1 == MIN_HOUR_1) && (time_data.min_10 < MIN_MIN_10))) {
     gpio_polarity_reset();
     gpio_blanking_set();
-    led_is_dark_period(true);
   } else {
     gpio_polarity_set();
     gpio_blanking_reset();
-    led_is_dark_period(false);
   }
 }
 

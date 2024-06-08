@@ -27,6 +27,7 @@ static void tc_rgbs_all_whole_day(void) {
     static bool is_first = true;
     if (is_first) {
       // the calculate_time() is not called in the first time in clock.c, so the time_raw_data is empty
+      // normally the clock_init() is called at first and it sets properly the time_raw_data
       mock_clear_calls();
       is_first = false;
     }

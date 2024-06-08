@@ -148,6 +148,7 @@ void led_main(void) {
   }
 }
 
+// TODO: remove it
 void led_is_dark_period(bool is_dark) {
   is_dark_period = is_dark;
 }
