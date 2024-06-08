@@ -87,6 +87,8 @@ if (TEST)
     test/avr_mock.c
     test/clock_mock.c
 
+    test/led_common.c
+
     test/led_tc.c
 
     led.c
@@ -109,6 +111,7 @@ if (TEST)
     test/avr_mock.c
     test/clock_mock.c
 
+    test/led_common.c
     ${CMAKE_CURRENT_LIST_DIR}/test/led_gen.c
 
     test/led_all_secs_tc.c
