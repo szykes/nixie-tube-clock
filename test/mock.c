@@ -133,11 +133,11 @@ static bool check_all_params(mock_call_st *mock_call, size_t idx, type_st *param
 }
 
 static void add_record(mock_call_st *mock_call, size_t idx, const char *function_name, type_st *params, size_t no_params, type_st *ret) {
-  if(!check_function_name(mock_call, idx, function_name)) {
+  if (!check_function_name(mock_call, idx, function_name)) {
     return;
   }
 
-  if(!check_all_params(mock_call, idx, params, no_params)) {
+  if (!check_all_params(mock_call, idx, params, no_params)) {
     return;
   }
 

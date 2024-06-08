@@ -171,8 +171,8 @@ static void set_sec_1(uint8_t sec) {
 }
 
 static void set_bits(size_t idx) {
-  for(int8_t i = CHAR_BIT - 1; i >= 0; i--) {
-    if(time_raw_data[idx] & (1 << i)) {
+  for (int8_t i = CHAR_BIT - 1; i >= 0; i--) {
+    if (time_raw_data[idx] & (1 << i)) {
       mock_initiate_expectation("gpio_data_set", NULL, 0, NULL);
     } else {
       mock_initiate_expectation("gpio_data_reset", NULL, 0, NULL);
@@ -196,7 +196,7 @@ void set_time(time_st time, bool is_glimm) {
     reset_glimm();
   }
 
-  for(size_t i = 0; i < sizeof(time_raw_data); i++) {
+  for (size_t i = 0; i < sizeof(time_raw_data); i++) {
     set_bits(i);
   }
 
@@ -222,7 +222,7 @@ bool set_half_second(time_st *preset_time, time_st time, bool is_increment_time,
   clock_timer_interrupt();
 
   if (is_increment_time) {
-    if(time.hour_10 == 1 &&
+    if (time.hour_10 == 1 &&
        time.hour_1 == 2 &&
        time.min_10 == 0 &&
        time.min_1 == 0 &&

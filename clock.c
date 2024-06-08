@@ -225,32 +225,32 @@ static void calculate_time(void) {
 
   time_data.sec_1++;
 
-  if(time_data.sec_1 >= 10) {
+  if (time_data.sec_1 >= 10) {
     time_data.sec_1 = 0;
     time_data.sec_10++;
   }
 
-  if(time_data.sec_10 >= 6) {
+  if (time_data.sec_10 >= 6) {
     time_data.sec_10 = 0;
     time_data.min_1++;
   }
 
-  if(time_data.min_1 >= 10) {
+  if (time_data.min_1 >= 10) {
     time_data.min_1 = 0;
     time_data.min_10++;
   }
 
-  if(time_data.min_10 >= 6) {
+  if (time_data.min_10 >= 6) {
     time_data.min_10 = 0;
     time_data.hour_1++;
   }
 
-  if(time_data.hour_1 >= 10) {
+  if (time_data.hour_1 >= 10) {
     time_data.hour_1 = 0;
     time_data.hour_10++;
   }
 
-  if((time_data.hour_10 >= 2) && (time_data.hour_1 >= 4)) {
+  if ((time_data.hour_10 >= 2) && (time_data.hour_1 >= 4)) {
     time_data.hour_10 = 0;
     time_data.hour_1 = 0;
   }
@@ -262,7 +262,7 @@ static void calculate_time(void) {
   set_sec_10(time_data.sec_10);
   set_sec_1(time_data.sec_1);
 
-  if(time_data.hour_10 == 1 &&
+  if (time_data.hour_10 == 1 &&
      time_data.hour_1 == 2 &&
      time_data.min_10 == 0 &&
      time_data.min_1 == 0 &&
@@ -274,7 +274,7 @@ static void calculate_time(void) {
 
 static void dark_period(void) {
   // turn off displaying between: 22:30 - 06:30
-  if(((time_data.hour_10 == MAX_HOUR_10) && (time_data.hour_1 > MAX_HOUR_1)) ||
+  if (((time_data.hour_10 == MAX_HOUR_10) && (time_data.hour_1 > MAX_HOUR_1)) ||
      ((time_data.hour_10 == MAX_HOUR_10) && (time_data.hour_1 == MAX_HOUR_1) && (time_data.min_10 >= MAX_MIN_10)) ||
      ((time_data.hour_10 == MIN_HOUR_10) && (time_data.hour_1 < MIN_HOUR_1)) ||
      ((time_data.hour_10 == MIN_HOUR_10) && (time_data.hour_1 == MIN_HOUR_1) && (time_data.min_10 < MIN_MIN_10))) {
@@ -287,8 +287,8 @@ static void dark_period(void) {
 }
 
 static void transmit_bits(size_t idx) {
-  for(int8_t i = CHAR_BIT - 1; i >= 0; i--) {
-    if(time_raw_data[idx] & (1 << i)) {
+  for (int8_t i = CHAR_BIT - 1; i >= 0; i--) {
+    if (time_raw_data[idx] & (1 << i)) {
       gpio_data_set();
     } else {
       gpio_data_reset();
@@ -300,7 +300,7 @@ static void transmit_bits(size_t idx) {
 static void send_spi_time_data(void) {
   // SPI does not work well, the pins are floating.
   // I implemented myself.
-  for(size_t i = 0; i < sizeof(time_raw_data); i++) {
+  for (size_t i = 0; i < sizeof(time_raw_data); i++) {
     transmit_bits(i);
   }
   latch_enable();
@@ -323,14 +323,14 @@ void clock_timer_interrupt(void) {
 
   cnt++;
 
-  if(cnt >= kLedOneSecCnt) {
+  if (cnt >= kLedOneSecCnt) {
     cnt = 0;
     increment_time = true;
     wifi_timer_interrupt();
     led_timer_interrupt();
   }
 
-  if(cnt == kLedOneSecCnt / 2) {
+  if (cnt == kLedOneSecCnt / 2) {
     resetting_glimm = true;
   }
 }
@@ -344,7 +344,7 @@ const time_st *clock_get_time(void) {
 }
 
 void clock_main(void) {
-  if(increment_time) {
+  if (increment_time) {
     increment_time = false;
 
     calculate_time();
@@ -356,7 +356,7 @@ void clock_main(void) {
     send_spi_time_data();
   }
 
-  if(resetting_glimm) {
+  if (resetting_glimm) {
     resetting_glimm = false;
 
     reset_glimm();

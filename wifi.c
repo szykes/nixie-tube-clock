@@ -54,11 +54,11 @@ static void esp_timer_counter(void) {
 static void send_data(const char *data, size_t len) {
   size_t i = 0;
 
-  for(i = 0; i < len && data[i] != '\0'; i++) {
+  for (i = 0; i < len && data[i] != '\0'; i++) {
     uart_send_data(data[i]);
   }
 
-  if(len >= 2 && data[0] == 'A' && data[1] == 'T') {
+  if (len >= 2 && data[0] == 'A' && data[1] == 'T') {
     uart_send_data('\r');
     uart_send_data('\n');
   }
@@ -119,11 +119,11 @@ static void send_establish_tcp_connection(void) {
 }
 
 static void response_handler_alive_check(const char *buf, size_t len) {
-  if(buf[0] == 'O') { // response OK
+  if (buf[0] == 'O') { // response OK
     esp_timer_stop();
 
     send_set_wifi_mode();
-  } else if(buf[0] == 'E') { // response ERROR
+  } else if (buf[0] == 'E') { // response ERROR
     gpio_reset_ch_pd();
   }
 }
@@ -133,7 +133,7 @@ static void response_handler_set_wifi_mode(const char *buf, size_t len) {
     esp_timer_stop();
 
     send_connect_to_ap();
-  } else if(buf[0] == 'E') { // response ERROR
+  } else if (buf[0] == 'E') { // response ERROR
     gpio_reset_ch_pd();
   }
 }
@@ -143,7 +143,7 @@ static void response_handler_connect_to_ap(const char *buf, size_t len) {
     esp_timer_stop();
 
     send_set_multiple_connections_mode();
-  } else if(buf[0] == 'E') { // response ERROR
+  } else if (buf[0] == 'E') { // response ERROR
     gpio_reset_ch_pd();
   }
 }
@@ -153,7 +153,7 @@ static void response_handler_set_multiple_connections_mode(const char *buf, size
     esp_timer_stop();
 
     send_create_tcp_server();
-  } else if(buf[0] == 'E') { // response ERROR
+  } else if (buf[0] == 'E') { // response ERROR
     gpio_reset_ch_pd();
   }
 }
@@ -163,7 +163,7 @@ static void response_handler_create_tcp_server(const char *buf, size_t len) {
     esp_timer_stop();
 
     send_establish_tcp_connection();
-  } else if(buf[0] == 'E') { // response ERROR
+  } else if (buf[0] == 'E') { // response ERROR
     gpio_reset_ch_pd();
   }
 }
@@ -185,7 +185,7 @@ static void response_handler_establish_tcp_connection(const char *buf, size_t le
 
     gpio_reset_ch_pd();
 
-  } else if(buf[0] == 'E') { // response ERROR
+  } else if (buf[0] == 'E') { // response ERROR
     gpio_reset_ch_pd();
   }
 }
@@ -202,7 +202,7 @@ static at_cmd_response_handler_func at_cmd_response_handler[] = {
 
 static void parse_response(const char *buf, size_t len) {
   // some ESP01 response with 'ready' and some with 'invalid', when ESP is ready
-  if((buf[0] == 'r' && buf[1] == 'e' && buf[2] == 'a' && buf[3] == 'd' && buf[4] == 'y') ||
+  if ((buf[0] == 'r' && buf[1] == 'e' && buf[2] == 'a' && buf[3] == 'd' && buf[4] == 'y') ||
      (buf[0] == 'i' && buf[1] == 'n' && buf[2] == 'v' && buf[3] == 'a' && buf[4] == 'l')) {
     esp_timer_stop();
     send_alive_check();
@@ -220,10 +220,10 @@ static void read_recv_buffer(void) {
 
   mcu_cli();
 
-  if(recv_buffer_len > 0) {
+  if (recv_buffer_len > 0) {
     size_t i;
 
-    for(i = 0; i < recv_buffer_len; i++) {
+    for (i = 0; i < recv_buffer_len; i++) {
       buf[i] = recv_buffer[i];
     }
 
@@ -234,7 +234,7 @@ static void read_recv_buffer(void) {
 
   mcu_sei();
 
-  if(len == 0) {
+  if (len == 0) {
     return;
   }
 
@@ -245,17 +245,17 @@ void wifi_receive_data(char data) {
   static char buf[sizeof(recv_buffer)];
   static size_t idx;
 
-  if(idx < (sizeof(recv_buffer) - 1)) {
+  if (idx < (sizeof(recv_buffer) - 1)) {
     buf[idx] = data;
     idx++;
   }
 
-  if(data == '\n') {
+  if (data == '\n') {
     size_t i;
 
     buf[idx] = '\0';
 
-    for(i = 0; i < (idx + 1); i++) {
+    for (i = 0; i < (idx + 1); i++) {
       recv_buffer[i] = buf[i];
     }
 
@@ -278,7 +278,7 @@ void wifi_timer_interrupt(void) {
 }
 
 void wifi_main(void) {
-  if(esp_reset) {
+  if (esp_reset) {
     gpio_esp_reset();
     gpio_esp_set();
     gpio_reset_ch_pd();

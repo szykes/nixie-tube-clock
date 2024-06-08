@@ -116,37 +116,37 @@ static void fill_led_gen_c(void) {
 
     uint32_t base = sec % ((uint32_t) SEVENTH_OF_BRIGHT_PERIOD_IN_SECS + 1);
 
-    if(sec > (7 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    if (sec > (7 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
       part = "8th part";
       red_ratio = 0;
       green_ratio = 0;
       blue_ratio = 0;
-    } else if(sec > (6 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (sec > (6 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
       part = "7th part";
       red_ratio = 0;
       green_ratio = 0;
       blue_ratio = decreasing_ratio(base);
-    } else if(sec > (5 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (sec > (5 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
       part = "6th part";
       red_ratio = 0;
       green_ratio = decreasing_ratio(base);
       blue_ratio = MAX_CNT;
-    } else if(sec > (4 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (sec > (4 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
       part = "5th part";
       red_ratio = 0;
       green_ratio = MAX_CNT;
       blue_ratio = increasing_ratio(base);
-    } else if(sec > (3 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (sec > (3 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
       part = "4th part";
       red_ratio = decreasing_ratio(base);
       green_ratio = MAX_CNT;
       blue_ratio = 0;
-    } else if(sec > (2 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (sec > (2 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
       part = "3rd part";
       red_ratio = MAX_CNT;
       green_ratio = increasing_ratio(base);
       blue_ratio = 0;
-    } else if(sec > SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) {
+    } else if (sec > SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) {
       part = "2nd part";
       red_ratio = MAX_CNT;
       green_ratio = 0;

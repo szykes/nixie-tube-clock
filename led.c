@@ -56,30 +56,30 @@ static uint8_t decreasing_ratio(uint32_t base) {
 unsigned char led_isr(void) {
   static uint8_t cnt = 0;
 
-  if(cnt >= MAX_CNT) {
+  if (cnt >= MAX_CNT) {
     cnt = 0;
     clock_timer_interrupt();
 
-    if(red_ratio != 0) {
+    if (red_ratio != 0) {
       gpio_led_red_set();
     }
-    if(green_ratio != 0) {
+    if (green_ratio != 0) {
       gpio_led_green_set();
     }
-    if(blue_ratio != 0) {
+    if (blue_ratio != 0) {
       gpio_led_blue_set();
     }
   }
 
-  if(cnt >= red_ratio) {
+  if (cnt >= red_ratio) {
     gpio_led_red_reset();
   }
 
-  if(cnt >= green_ratio) {
+  if (cnt >= green_ratio) {
     gpio_led_green_reset();
   }
 
-  if(cnt >= blue_ratio) {
+  if (cnt >= blue_ratio) {
     gpio_led_blue_reset();
   }
 
@@ -97,40 +97,40 @@ void led_timer_interrupt(void) {
 }
 
 void led_main(void) {
-  if(is_calculate) {
+  if (is_calculate) {
     is_calculate = false;
 
     int64_t secs = get_time_in_secs() - HHM_TO_SECS(MIN_HOUR_10, MIN_HOUR_1, MIN_MIN_10);
-    if(secs < 0) {
+    if (secs < 0) {
       secs = 0;
     }
     uint32_t base = secs % ((uint32_t) SEVENTH_OF_BRIGHT_PERIOD_IN_SECS + 1);
 
-    if(secs > (7 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    if (secs > (7 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
       red_ratio = 0;
       green_ratio = 0;
       blue_ratio = 0;
-    } else if(secs > (6 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (secs > (6 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
       red_ratio = 0;
       green_ratio = 0;
       blue_ratio = decreasing_ratio(base);
-    } else if(secs > (5 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (secs > (5 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
       red_ratio = 0;
       green_ratio = decreasing_ratio(base);
       blue_ratio = MAX_CNT;
-    } else if(secs > (4 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (secs > (4 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
       red_ratio = 0;
       green_ratio = MAX_CNT;
       blue_ratio = increasing_ratio(base);
-    } else if(secs > (3 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (secs > (3 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
       red_ratio = decreasing_ratio(base);
       green_ratio = MAX_CNT;
       blue_ratio = 0;
-    } else if(secs > (2 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (secs > (2 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
       red_ratio = MAX_CNT;
       green_ratio = increasing_ratio(base);
       blue_ratio = 0;
-    } else if(secs > SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) {
+    } else if (secs > SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) {
       red_ratio = MAX_CNT;
       green_ratio = 0;
       blue_ratio = decreasing_ratio(base);
