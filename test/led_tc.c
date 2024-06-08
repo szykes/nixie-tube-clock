@@ -111,8 +111,8 @@ static bool tc_rgbs_with_two_colors(void) {
       .hour_10 = 0,
       .hour_1 = 6,
       .min_10 = 5,
-      .min_1 = 3,
-      .sec_10 = 0,
+      .min_1 = 1,
+      .sec_10 = 5,
       .sec_1 = 0,
     }, 40, 0, 40);
 
