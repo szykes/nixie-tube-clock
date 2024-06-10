@@ -236,8 +236,8 @@ else()
 
   target_compile_options(nixie-tube-clock PUBLIC
     -mmcu=${MCU_GCC}
-    -std=gnu99
-    -Os
+    -std=c99
+    -O1
     -Wall
     -Wundef
     -pedantic
