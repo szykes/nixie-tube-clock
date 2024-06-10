@@ -15,23 +15,23 @@ static bool tc_clock_init(void) {
   mock_initiate_expectation("gpio_latch_enable_set", NULL, 0, NULL);
 
   set_time((time_st) {
-      .hour_10 = 2,
-      .hour_1 = 0,
-      .min_10 = 0,
-      .min_1 = 0,
-      .sec_10 = 0,
-      .sec_1 = 1,
+      .hour_10 = 1,
+      .hour_1 = 9,
+      .min_10 = 4,
+      .min_1 = 9,
+      .sec_10 = 4,
+      .sec_1 = 9,
     }, false);
 
   clock_init();
 
   const time_st *actual_time = clock_get_time();
-  TEST_ASSERT_EQ(actual_time->hour_10, 2, "hour_10");
-  TEST_ASSERT_EQ(actual_time->hour_1, 0, "hour_1");
-  TEST_ASSERT_EQ(actual_time->min_10, 0, "min_10");
-  TEST_ASSERT_EQ(actual_time->min_1, 0, "min_1");
-  TEST_ASSERT_EQ(actual_time->sec_10, 0, "sec_10");
-  TEST_ASSERT_EQ(actual_time->sec_1, 1, "sec_1");
+  TEST_ASSERT_EQ(actual_time->hour_10, 1, "hour_10");
+  TEST_ASSERT_EQ(actual_time->hour_1, 9, "hour_1");
+  TEST_ASSERT_EQ(actual_time->min_10, 4, "min_10");
+  TEST_ASSERT_EQ(actual_time->min_1, 9, "min_1");
+  TEST_ASSERT_EQ(actual_time->sec_10, 4, "sec_10");
+  TEST_ASSERT_EQ(actual_time->sec_1, 9, "sec_1");
 
   TEST_END();
 }
@@ -64,12 +64,12 @@ static bool tc_counting_clock_in_dark_period(void) {
   TEST_BEGIN();
 
   time_st expected_time = {
-    .hour_10 = 2,
-    .hour_1 = 0,
-    .min_10 = 0,
-    .min_1 = 0,
-    .sec_10 = 0,
-    .sec_1 = 1,
+    .hour_10 = 1,
+    .hour_1 = 9,
+    .min_10 = 4,
+    .min_1 = 9,
+    .sec_10 = 4,
+    .sec_1 = 9,
   };
 
   time_st current_time = {

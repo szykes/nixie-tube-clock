@@ -269,14 +269,10 @@ static void calculate_time(void) {
   set_sec_10(time_data.sec_10);
   set_sec_1(time_data.sec_1);
 
-  if (((time_data.hour_10 == 0 &&
-	  time_data.hour_1 == 5 &&
-	  time_data.min_10 == 2) ||
+  if (((time_data.hour_10 == 0 && time_data.hour_1 == 5 && time_data.min_10 == 2) ||
        !is_dark_period()) &&
-	time_data.hour_10 != 2 &&
-	(time_data.min_1 == 0 &&
-	 time_data.sec_10 == 0 &&
-	 time_data.sec_1 == 0)) {
+      time_data.hour_10 != 2 &&
+      (time_data.min_1 == 0 && time_data.sec_10 == 0 && time_data.sec_1 == 0)) {
     wifi_query_timer();
   }
 }
@@ -315,8 +311,12 @@ void clock_init(void) {
   gpio_polarity_set();
   gpio_latch_enable_set();
 
-  time_data.hour_10 = 2;
-  time_data.hour_1 = 0;
+  time_data.hour_10 = 1;
+  time_data.hour_1 = 9;
+  time_data.min_10 = 4;
+  time_data.min_1 = 9;
+  time_data.sec_10 = 4;
+  time_data.sec_1 = 8;
 
   calculate_time();
 

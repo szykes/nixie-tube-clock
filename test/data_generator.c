@@ -233,14 +233,10 @@ static void fill_clock_gen_c(void) {
 
     time_st time = convert_seconds_to_time_st(secs);
 
-    if (((time.hour_10 == 0 &&
-	  time.hour_1 == 5 &&
-	  time.min_10 == 2) ||
+    if (((time.hour_10 == 0 && time.hour_1 == 5 &&time.min_10 == 2) ||
 	 !is_dark_period) &&
 	time.hour_10 != 2 &&
-	(time.min_1 == 0 &&
-	 time.sec_10 == 0 &&
-	 time.sec_1 == 0)) {
+	(time.min_1 == 0 && time.sec_10 == 0 && time.sec_1 == 0)) {
       is_query_time = true;
     }
 
