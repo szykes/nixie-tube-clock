@@ -104,13 +104,23 @@ void led_main(void) {
     if (secs < 0) {
       secs = 0;
     }
-    uint32_t base = secs % ((uint32_t) SEVENTH_OF_BRIGHT_PERIOD_IN_SECS + 1);
 
-    if (secs > (7 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    uint32_t mod = 0;
+    if (secs >= 43208) {
+      mod = 3;
+    } else if (secs >= 28807) {
+      mod = 2;
+    } else if (secs >= 14403) {
+      mod = 1;
+    }
+
+    uint32_t base = (secs + mod) % ((uint32_t) SEVENTH_OF_BRIGHT_PERIOD_IN_SECS + 1);
+
+    if (secs > (7 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) - 1) {
       red_ratio = 0;
       green_ratio = 0;
       blue_ratio = 0;
-    } else if (secs > (6 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (secs > (6 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) - 1) {
       red_ratio = 0;
       green_ratio = 0;
       blue_ratio = decreasing_ratio(base);
@@ -118,7 +128,7 @@ void led_main(void) {
       red_ratio = 0;
       green_ratio = decreasing_ratio(base);
       blue_ratio = MAX_CNT;
-    } else if (secs > (4 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (secs > (4 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) - 1) {
       red_ratio = 0;
       green_ratio = MAX_CNT;
       blue_ratio = increasing_ratio(base);
@@ -126,7 +136,7 @@ void led_main(void) {
       red_ratio = decreasing_ratio(base);
       green_ratio = MAX_CNT;
       blue_ratio = 0;
-    } else if (secs > (2 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (secs > (2 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) - 1) {
       red_ratio = MAX_CNT;
       green_ratio = increasing_ratio(base);
       blue_ratio = 0;

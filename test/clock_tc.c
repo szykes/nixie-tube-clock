@@ -8,8 +8,6 @@
 
 #include "led.h"
 
-// 20:12:55 ekkor nem láttam a LED-et
-
 static bool tc_clock_init(void) {
   TEST_BEGIN();
 

@@ -108,20 +108,21 @@ static void fill_led_gen_c(void) {
     uint8_t blue_ratio;
 
     const char *part = NULL;
-    int64_t sec = secs - HHM_TO_SECS(MIN_HOUR_10, MIN_HOUR_1, MIN_MIN_10);
-
+    int32_t sec = secs - HHM_TO_SECS(MIN_HOUR_10, MIN_HOUR_1, MIN_MIN_10);
     if (sec < 0) {
       sec = 0;
     }
 
-    uint32_t base = sec % ((uint32_t) SEVENTH_OF_BRIGHT_PERIOD_IN_SECS + 1);
+    uint32_t mod = (float)(SEVENTH_OF_BRIGHT_PERIOD_IN_SECS - (uint32_t) SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) * ((float)sec / (uint32_t) SEVENTH_OF_BRIGHT_PERIOD_IN_SECS);
 
-    if (sec > (7 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    uint32_t base = (sec + mod) % ((uint32_t) SEVENTH_OF_BRIGHT_PERIOD_IN_SECS + 1);
+
+    if (sec > (7 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) - 1) {
       part = "8th part";
       red_ratio = 0;
       green_ratio = 0;
       blue_ratio = 0;
-    } else if (sec > (6 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (sec > (6 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) - 1) {
       part = "7th part";
       red_ratio = 0;
       green_ratio = 0;
@@ -131,7 +132,7 @@ static void fill_led_gen_c(void) {
       red_ratio = 0;
       green_ratio = decreasing_ratio(base);
       blue_ratio = MAX_CNT;
-    } else if (sec > (4 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (sec > (4 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) - 1) {
       part = "5th part";
       red_ratio = 0;
       green_ratio = MAX_CNT;
@@ -141,7 +142,7 @@ static void fill_led_gen_c(void) {
       red_ratio = decreasing_ratio(base);
       green_ratio = MAX_CNT;
       blue_ratio = 0;
-    } else if (sec > (2 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (sec > (2 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) - 1) {
       part = "3rd part";
       red_ratio = MAX_CNT;
       green_ratio = increasing_ratio(base);
