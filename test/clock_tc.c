@@ -81,9 +81,9 @@ static bool tc_counting_clock_in_dark_period(void) {
     .sec_1 = 5,
   };
 
-  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, true));
+  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, true, false));
   current_time.sec_1++;
-  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, true));
+  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, true, false));
 
   TEST_END();
 }
@@ -109,9 +109,9 @@ static bool tc_counting_clock_in_bright_period(void) {
     .sec_1 = 0,
   };
 
-  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, false));
+  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, false, false));
   current_time.sec_1++;
-  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, false));
+  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, false, false));
 
   TEST_END();
 }
@@ -137,9 +137,9 @@ static bool tc_dark_period_after_midnight(void) {
     .sec_1 = 0,
   };
 
-  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, true));
+  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, true, false));
   current_time.sec_1++;
-  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, true));
+  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, true, false));
 
   TEST_END();
 }
@@ -165,9 +165,9 @@ static bool tc_dark_period_before_min_time(void) {
     .sec_1 = 8,
   };
 
-  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, true));
+  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, true, false));
   current_time.sec_1++;
-  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, true));
+  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, true, false));
 
   TEST_END();
 }
@@ -193,9 +193,9 @@ static bool tc_bright_period_at_min_time(void) {
     .sec_1 = 0,
   };
 
-  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, false));
+  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, false, false));
   current_time.sec_1++;
-  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, false));
+  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, false, false));
 
   TEST_END();
 }
@@ -221,9 +221,9 @@ static bool tc_bright_period_at_noon(void) {
     .sec_1 = 0,
   };
 
-  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, false));
+  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, false, false));
   current_time.sec_1++;
-  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, false));
+  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, false, false));
 
   TEST_END();
 }
@@ -249,9 +249,9 @@ static bool tc_bright_period_at_max_time(void) {
     .sec_1 = 8,
   };
 
-  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, false));
+  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, false, false));
   current_time.sec_1++;
-  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, false));
+  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, false, false));
 
   TEST_END();
 }
@@ -277,9 +277,9 @@ static bool tc_dark_period_after_max_time(void) {
     .sec_1 = 0,
   };
 
-  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, true));
+  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, true, false));
   current_time.sec_1++;
-  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, true));
+  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, true, false));
 
   TEST_END();
 }
@@ -305,9 +305,9 @@ static bool tc_dark_period_before_midnight(void) {
     .sec_1 = 8,
   };
 
-  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, true));
+  TEST_ASSERT_BOOL(set_half_second(&current_time, expected_time, false, true, false));
   current_time.sec_1++;
-  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, true));
+  TEST_ASSERT_BOOL(set_half_second(NULL, current_time, true, true, false));
 
   TEST_END();
 }

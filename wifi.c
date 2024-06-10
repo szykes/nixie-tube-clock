@@ -21,7 +21,7 @@ typedef enum {
   AT_CMD_TYPE_SET_CWJAP,     // AT+CWJAP=
   AT_CMD_TYPE_SET_CIPMUX,    // AT+CIPMUX=
   AT_CMD_TYPE_SET_CIPSERVER, // AT+CIPSERVER=
-  AT_CMD_TYPE_SET_CIPSTART,   // AT+CIPSTAR=
+  AT_CMD_TYPE_SET_CIPSTART,  // AT+CIPSTAR=
 } at_cmd_type;
 
 typedef void (*at_cmd_response_handler_func)(const uint8_t *buf, size_t len);

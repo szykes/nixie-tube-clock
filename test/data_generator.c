@@ -199,6 +199,7 @@ static void fill_clock_gen_h(void) {
   fprintf(fp, "typedef struct {\n");
   fprintf(fp, "  time_st time;\n");
   fprintf(fp, "  bool is_dark_period;\n");
+  fprintf(fp, "  bool is_query_time;\n");
   fprintf(fp, "} clock_gen_st;\n");
   fprintf(fp, "\n");
   fprintf(fp, "extern clock_gen_st tcs[%d];\n", (SECONDS_OF_DAY + 1));
@@ -224,6 +225,7 @@ static void fill_clock_gen_c(void) {
 
   for (uint32_t secs = 0; secs < (SECONDS_OF_DAY + 1); secs++) {
     bool is_dark_period = true;
+    bool is_query_time = false;
 
     if (HHM_TO_SECS(MIN_HOUR_10, MIN_HOUR_1, MIN_MIN_10) <= secs && secs < HHM_TO_SECS(MAX_HOUR_10, MAX_HOUR_1, MAX_MIN_10)) {
       is_dark_period = false;
@@ -231,11 +233,23 @@ static void fill_clock_gen_c(void) {
 
     time_st time = convert_seconds_to_time_st(secs);
 
-    fprintf(fp, "  {.time = {.hour_10 = %d, .hour_1 = %d, .min_10 = %d, .min_1 = %d, .sec_10 = %d, .sec_1 = %d}, .is_dark_period = %s},\t// secs=%u, time=%d%d:%d%d:%d%d\n",
+    if (((time.hour_10 == 0 &&
+	  time.hour_1 == 5 &&
+	  time.min_10 == 2) ||
+	 !is_dark_period) &&
+	time.hour_10 != 2 &&
+	(time.min_1 == 0 &&
+	 time.sec_10 == 0 &&
+	 time.sec_1 == 0)) {
+      is_query_time = true;
+    }
+
+    fprintf(fp, "  {.time = {.hour_10 = %d, .hour_1 = %d, .min_10 = %d, .min_1 = %d, .sec_10 = %d, .sec_1 = %d}, .is_dark_period = %s, .is_query_time = %s},\t// secs=%u, time=%d%d:%d%d:%d%d\n",
 	    time.hour_10, time.hour_1,
 	    time.min_10, time.min_1,
 	    time.sec_10, time.sec_1,
       	    (is_dark_period ? "true" : "false"),
+	    (is_query_time ? "true" : "false"),
 	    secs,
 	    time.hour_10, time.hour_1,
 	    time.min_10, time.min_1,

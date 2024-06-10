@@ -16,7 +16,7 @@ static bool tc_rgbs_all_whole_day(void) {
     TEST_BEGIN();
 
     clock_gen_st record = tcs[i];
-    TEST_ASSERT_BOOL(set_half_second(NULL, record.time, false, record.is_dark_period));
+    TEST_ASSERT_BOOL(set_half_second(NULL, record.time, false, record.is_dark_period, false));
 
     log_test("first half - time: %d%d:%d%d:%d%d, is_dark_period: %d",
 	     record.time.hour_10, record.time.hour_1,
@@ -33,7 +33,7 @@ static bool tc_rgbs_all_whole_day(void) {
     }
 
     clock_gen_st second_time = tcs[i+1];
-    TEST_ASSERT_BOOL(set_half_second(NULL, second_time.time, true, second_time.is_dark_period));
+    TEST_ASSERT_BOOL(set_half_second(NULL, second_time.time, true, second_time.is_dark_period, second_time.is_query_time));
 
     log_test("second half - time: %d%d:%d%d:%d%d, is_dark_period: %d",
 	     second_time.time.hour_10, second_time.time.hour_1,

@@ -204,7 +204,7 @@ void set_time(time_st time, bool is_glimm) {
   mock_initiate_expectation("gpio_latch_enable_set", NULL, 0, NULL);
 }
 
-bool set_half_second(time_st *preset_time, time_st time, bool is_increment_time, bool is_dark_period) {
+bool set_half_second(time_st *preset_time, time_st time, bool is_increment_time, bool is_dark_period, bool is_query_time) {
   if (preset_time != NULL) {
     clock_update_time(*preset_time);
   }
@@ -222,12 +222,7 @@ bool set_half_second(time_st *preset_time, time_st time, bool is_increment_time,
   clock_timer_interrupt();
 
   if (is_increment_time) {
-    if (time.hour_10 == 1 &&
-       time.hour_1 == 2 &&
-       time.min_10 == 0 &&
-       time.min_1 == 0 &&
-       time.sec_10 == 0 &&
-       time.sec_1 == 0) {
+    if (is_query_time) {
       mock_initiate_expectation("wifi_query_timer", NULL, 0, NULL);
     }
 

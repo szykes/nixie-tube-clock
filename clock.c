@@ -220,6 +220,13 @@ static void set_sec_1(uint8_t sec) {
   }
 }
 
+static bool is_dark_period(void) {
+  return ((time_data.hour_10 == MAX_HOUR_10) && (time_data.hour_1 > MAX_HOUR_1)) ||
+    ((time_data.hour_10 == MAX_HOUR_10) && (time_data.hour_1 == MAX_HOUR_1) && (time_data.min_10 >= MAX_MIN_10)) ||
+    ((time_data.hour_10 == MIN_HOUR_10) && (time_data.hour_1 < MIN_HOUR_1)) ||
+    ((time_data.hour_10 == MIN_HOUR_10) && (time_data.hour_1 == MIN_HOUR_1) && (time_data.min_10 < MIN_MIN_10));
+}
+
 static void calculate_time(void) {
   clear_time_raw_data();
 
@@ -262,22 +269,20 @@ static void calculate_time(void) {
   set_sec_10(time_data.sec_10);
   set_sec_1(time_data.sec_1);
 
-  if (time_data.hour_10 == 1 &&
-     time_data.hour_1 == 2 &&
-     time_data.min_10 == 0 &&
-     time_data.min_1 == 0 &&
-     time_data.sec_10 == 0 &&
-     time_data.sec_1 == 0) {
+  if (((time_data.hour_10 == 0 &&
+	  time_data.hour_1 == 5 &&
+	  time_data.min_10 == 2) ||
+       !is_dark_period()) &&
+	time_data.hour_10 != 2 &&
+	(time_data.min_1 == 0 &&
+	 time_data.sec_10 == 0 &&
+	 time_data.sec_1 == 0)) {
     wifi_query_timer();
   }
 }
 
-static void dark_period(void) {
-  // turn off displaying between: 22:30 - 06:30
-  if (((time_data.hour_10 == MAX_HOUR_10) && (time_data.hour_1 > MAX_HOUR_1)) ||
-     ((time_data.hour_10 == MAX_HOUR_10) && (time_data.hour_1 == MAX_HOUR_1) && (time_data.min_10 >= MAX_MIN_10)) ||
-     ((time_data.hour_10 == MIN_HOUR_10) && (time_data.hour_1 < MIN_HOUR_1)) ||
-     ((time_data.hour_10 == MIN_HOUR_10) && (time_data.hour_1 == MIN_HOUR_1) && (time_data.min_10 < MIN_MIN_10))) {
+static void turn_off_display(void) {
+  if (is_dark_period()) {
     gpio_polarity_reset();
     gpio_blanking_set();
   } else {
@@ -349,7 +354,7 @@ void clock_main(void) {
 
     calculate_time();
 
-    dark_period();
+    turn_off_display();
 
     set_glimm();
 
