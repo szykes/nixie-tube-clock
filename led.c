@@ -34,11 +34,11 @@ static volatile uint8_t blue_ratio = 0;
 static uint32_t get_time_in_secs(void) {
   const time_st *time = clock_get_time();
   uint32_t secs = 0;
-  secs += time->hour_10 * 10u * 3600u;
-  secs += time->hour_1 * 3600u;
-  secs += time->min_10 * 10u * 60u;
-  secs += time->min_1 * 60u;
-  secs += time->sec_10 * 10u;
+  secs += time->hour_10 * 10ul * 3600ul;
+  secs += time->hour_1 * 3600ul;
+  secs += time->min_10 * 10ul * 60ul;
+  secs += time->min_1 * 60ul;
+  secs += time->sec_10 * 10ul;
   secs += time->sec_1;
   return secs;
 }
