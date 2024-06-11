@@ -2,12 +2,6 @@
 .clangd/
 .cache/
 cmake/
-cmake-test/
 compile_commands.json
-
-test/clock_gen.h
-test/clock_gen.c
-test/led_gen.c
-test/led_gen.h
 
 *~
