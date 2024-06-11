@@ -4,10 +4,7 @@
 #include <stdint.h>
 #include <math.h>
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
-#include "gpio.h"
+#include "avr.h"
 #include "wifi.h"
 #include "clock.h"
 
@@ -26,11 +23,9 @@
 
 #define SEVENTH_OF_BRIGHT_PERIOD_IN_SECS (BRIGHT_PERIOD_IN_SECS / (float) 7)
 
-#define RATIO_MODIFIER 40
+#define RATIO_MODIFIER 10
 
 static volatile bool is_calculate = false;
-
-static volatile bool is_dark_period = false;
 
 static volatile uint8_t red_ratio = 0;
 static volatile uint8_t green_ratio = 0;
@@ -49,59 +44,52 @@ static uint32_t get_time_in_secs(void) {
 }
 
 static uint8_t increasing_ratio(uint32_t base) {
-  uint16_t ratio = roundf(base / (SEVENTH_OF_BRIGHT_PERIOD_IN_SECS / (float) (MAX_CNT + RATIO_MODIFIER)));
+  uint16_t ratio = lrintf(base / (SEVENTH_OF_BRIGHT_PERIOD_IN_SECS / (float) (MAX_CNT + RATIO_MODIFIER)));
   return (ratio > MAX_CNT ? MAX_CNT : ratio);
 }
 
 static uint8_t decreasing_ratio(uint32_t base) {
-  uint16_t ratio = roundf(base / (SEVENTH_OF_BRIGHT_PERIOD_IN_SECS / (float) (MAX_CNT + RATIO_MODIFIER)));
+  uint16_t ratio = lrintf(base / (SEVENTH_OF_BRIGHT_PERIOD_IN_SECS / (float) (MAX_CNT + RATIO_MODIFIER)));
   return MAX_CNT - (ratio > MAX_CNT ? MAX_CNT : ratio);
 }
 
-ISR(TIMER0_OVF_vect) {
+unsigned char led_isr(void) {
   static uint8_t cnt = 0;
 
-  if(cnt >= MAX_CNT) {
+  if (cnt >= MAX_CNT) {
     cnt = 0;
     clock_timer_interrupt();
 
-    if(red_ratio != 0 && !is_dark_period) {
+    if (red_ratio != 0) {
       gpio_led_red_set();
     }
-    if(green_ratio != 0 && !is_dark_period) {
+    if (green_ratio != 0) {
       gpio_led_green_set();
     }
-    if(blue_ratio != 0 && !is_dark_period) {
+    if (blue_ratio != 0) {
       gpio_led_blue_set();
     }
   }
 
-  if(cnt >= red_ratio) {
+  if (cnt >= red_ratio) {
     gpio_led_red_reset();
   }
 
-  if(cnt >= green_ratio) {
+  if (cnt >= green_ratio) {
     gpio_led_green_reset();
   }
 
-  if(cnt >= blue_ratio) {
+  if (cnt >= blue_ratio) {
     gpio_led_blue_reset();
   }
 
   cnt++;
 
-  TCNT0 = TIMER_INIT_CNT;
+  return TIMER_INIT_CNT;
 }
 
 void led_init(void) {
-  // TCCR0A = 0x00;
-
-  // 7 372 800 Hz clk / 256 -> timer input: 28 800 Hz
-  TCCR0 = (1 << CS02);
-
-  TCNT0 = TIMER_INIT_CNT;
-
-  TIMSK = (1 << TOIE0);
+  timer0_init(TIMER_INIT_CNT);
 }
 
 void led_timer_interrupt(void) {
@@ -109,40 +97,50 @@ void led_timer_interrupt(void) {
 }
 
 void led_main(void) {
-  if(is_calculate) {
+  if (is_calculate) {
     is_calculate = false;
 
     int64_t secs = get_time_in_secs() - HHM_TO_SECS(MIN_HOUR_10, MIN_HOUR_1, MIN_MIN_10);
-    if(secs < 0) {
+    if (secs < 0) {
       secs = 0;
     }
-    uint32_t base = secs % ((uint32_t) SEVENTH_OF_BRIGHT_PERIOD_IN_SECS + 1);
 
-    if(secs > (7 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    uint32_t mod = 0;
+    if (secs >= 43208) {
+      mod = 3;
+    } else if (secs >= 28807) {
+      mod = 2;
+    } else if (secs >= 14403) {
+      mod = 1;
+    }
+
+    uint32_t base = (secs + mod) % ((uint32_t) SEVENTH_OF_BRIGHT_PERIOD_IN_SECS + 1);
+
+    if (secs > (7 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) - 1) {
       red_ratio = 0;
       green_ratio = 0;
       blue_ratio = 0;
-    } else if(secs > (6 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (secs > (6 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) - 1) {
       red_ratio = 0;
       green_ratio = 0;
       blue_ratio = decreasing_ratio(base);
-    } else if(secs > (5 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (secs > (5 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
       red_ratio = 0;
       green_ratio = decreasing_ratio(base);
       blue_ratio = MAX_CNT;
-    } else if(secs > (4 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (secs > (4 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) - 1) {
       red_ratio = 0;
       green_ratio = MAX_CNT;
       blue_ratio = increasing_ratio(base);
-    } else if(secs > (3 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (secs > (3 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
       red_ratio = decreasing_ratio(base);
       green_ratio = MAX_CNT;
       blue_ratio = 0;
-    } else if(secs > (2 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS)) {
+    } else if (secs > (2 * SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) - 1) {
       red_ratio = MAX_CNT;
       green_ratio = increasing_ratio(base);
       blue_ratio = 0;
-    } else if(secs > SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) {
+    } else if (secs > SEVENTH_OF_BRIGHT_PERIOD_IN_SECS) {
       red_ratio = MAX_CNT;
       green_ratio = 0;
       blue_ratio = decreasing_ratio(base);
@@ -156,8 +154,4 @@ void led_main(void) {
       blue_ratio = 0;
     }
   }
-}
-
-void led_is_dark_period(bool is_dark) {
-  is_dark_period = is_dark;
 }

@@ -5,9 +5,7 @@
 #include <stdbool.h>
 #include <limits.h>
 
-#include <avr/interrupt.h>
-
-#include "gpio.h"
+#include "avr.h"
 #include "led.h"
 #include "wifi.h"
 
@@ -62,8 +60,8 @@ static void latch_enable(void) {
 }
 
 static void reset_glimm(void) {
-  time_raw_data[1] &= ~(3 << 0);
-  time_raw_data[7] &= ~(3 << 6);
+  time_raw_data[1] &= (uint8_t)~(3 << 0);
+  time_raw_data[7] &= (uint8_t)~(3 << 6);
 }
 
 static void set_glimm(void) {
@@ -222,37 +220,44 @@ static void set_sec_1(uint8_t sec) {
   }
 }
 
+static bool is_dark_period(void) {
+  return ((time_data.hour_10 == MAX_HOUR_10) && (time_data.hour_1 > MAX_HOUR_1)) ||
+    ((time_data.hour_10 == MAX_HOUR_10) && (time_data.hour_1 == MAX_HOUR_1) && (time_data.min_10 >= MAX_MIN_10)) ||
+    ((time_data.hour_10 == MIN_HOUR_10) && (time_data.hour_1 < MIN_HOUR_1)) ||
+    ((time_data.hour_10 == MIN_HOUR_10) && (time_data.hour_1 == MIN_HOUR_1) && (time_data.min_10 < MIN_MIN_10));
+}
+
 static void calculate_time(void) {
   clear_time_raw_data();
 
   time_data.sec_1++;
 
-  if(time_data.sec_1 >= 10) {
+  if (time_data.sec_1 >= 10) {
     time_data.sec_1 = 0;
     time_data.sec_10++;
   }
 
-  if(time_data.sec_10 >= 6) {
+  if (time_data.sec_10 >= 6) {
     time_data.sec_10 = 0;
     time_data.min_1++;
   }
 
-  if(time_data.min_1 >= 10) {
+  if (time_data.min_1 >= 10) {
     time_data.min_1 = 0;
     time_data.min_10++;
   }
 
-  if(time_data.min_10 >= 6) {
+  if (time_data.min_10 >= 6) {
     time_data.min_10 = 0;
     time_data.hour_1++;
   }
 
-  if(time_data.hour_1 >= 10) {
+  if (time_data.hour_1 >= 10) {
     time_data.hour_1 = 0;
     time_data.hour_10++;
   }
 
-  if((time_data.hour_10 >= 2) && (time_data.hour_1 >= 4)) {
+  if ((time_data.hour_10 >= 2) && (time_data.hour_1 >= 4)) {
     time_data.hour_10 = 0;
     time_data.hour_1 = 0;
   }
@@ -264,32 +269,27 @@ static void calculate_time(void) {
   set_sec_10(time_data.sec_10);
   set_sec_1(time_data.sec_1);
 
-  if((time_data.min_1 == 0 || time_data.min_1 == 5) &&
-    time_data.sec_10 == 0 &&
-     time_data.sec_1 == 0) {
+  if (((time_data.hour_10 == 0 && time_data.hour_1 == 5 && time_data.min_10 == 2) ||
+       !is_dark_period()) &&
+      time_data.hour_10 != 2 &&
+      (time_data.min_1 == 0 && time_data.sec_10 == 0 && time_data.sec_1 == 0)) {
     wifi_query_timer();
   }
 }
 
-static void dark_period(void) {
-  // turn off displaying between: 22:30 - 06:30
-  if(((time_data.hour_10 == MAX_HOUR_10) && (time_data.hour_1 > MAX_HOUR_1)) ||
-     ((time_data.hour_10 == MAX_HOUR_10) && (time_data.hour_1 == MAX_HOUR_1) && (time_data.min_10 >= MAX_MIN_10)) ||
-     ((time_data.hour_10 == MIN_HOUR_10) && (time_data.hour_1 < MIN_HOUR_1)) ||
-     ((time_data.hour_10 == MIN_HOUR_10) && (time_data.hour_1 == MIN_HOUR_1) && (time_data.min_10 < MIN_MIN_10))) {
+static void turn_off_display(void) {
+  if (is_dark_period()) {
     gpio_polarity_reset();
     gpio_blanking_set();
-    led_is_dark_period(true);
   } else {
     gpio_polarity_set();
     gpio_blanking_reset();
-    led_is_dark_period(false);
   }
 }
 
 static void transmit_bits(size_t idx) {
-  for(int8_t i = CHAR_BIT - 1; i >= 0; i--) {
-    if(time_raw_data[idx] & (1 << i)) {
+  for (int8_t i = CHAR_BIT - 1; i >= 0; i--) {
+    if (time_raw_data[idx] & (1 << i)) {
       gpio_data_set();
     } else {
       gpio_data_reset();
@@ -301,7 +301,7 @@ static void transmit_bits(size_t idx) {
 static void send_spi_time_data(void) {
   // SPI does not work well, the pins are floating.
   // I implemented myself.
-  for(size_t i = 0; i < sizeof(time_raw_data); i++) {
+  for (size_t i = 0; i < sizeof(time_raw_data); i++) {
     transmit_bits(i);
   }
   latch_enable();
@@ -311,8 +311,12 @@ void clock_init(void) {
   gpio_polarity_set();
   gpio_latch_enable_set();
 
-  time_data.hour_10 = 2;
-  time_data.hour_1 = 0;
+  time_data.hour_10 = 1;
+  time_data.hour_1 = 9;
+  time_data.min_10 = 4;
+  time_data.min_1 = 9;
+  time_data.sec_10 = 4;
+  time_data.sec_1 = 8;
 
   calculate_time();
 
@@ -322,18 +326,18 @@ void clock_init(void) {
 void clock_timer_interrupt(void) {
   static uint8_t cnt = 0;
 
-  if(cnt >= kLedOneSecCnt) {
+  cnt++;
+
+  if (cnt >= kLedOneSecCnt) {
     cnt = 0;
     increment_time = true;
     wifi_timer_interrupt();
     led_timer_interrupt();
   }
 
-  if(cnt == kLedOneSecCnt / 2) {
+  if (cnt == kLedOneSecCnt / 2) {
     resetting_glimm = true;
   }
-
-  cnt++;
 }
 
 void clock_update_time(time_st accurate_time) {
@@ -345,19 +349,19 @@ const time_st *clock_get_time(void) {
 }
 
 void clock_main(void) {
-  if(increment_time) {
+  if (increment_time) {
     increment_time = false;
 
     calculate_time();
 
-    dark_period();
+    turn_off_display();
 
     set_glimm();
 
     send_spi_time_data();
   }
 
-  if(resetting_glimm) {
+  if (resetting_glimm) {
     resetting_glimm = false;
 
     reset_glimm();
