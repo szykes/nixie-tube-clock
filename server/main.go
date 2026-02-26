@@ -26,7 +26,12 @@ func app() error {
 	if err != nil {
 		return fmt.Errorf("listen: %w", err)
 	}
-	defer ln.Close()
+	defer func() {
+		err := ln.Close()
+		if err != nil {
+			log.Printf("Failed to close listener: %v", err.Error())
+		}
+	}()
 
 	for {
 		log.Println("Wait for accept")
@@ -37,7 +42,12 @@ func app() error {
 		}
 
 		go func(c net.Conn) {
-			defer c.Close()
+			defer func() {
+				err := c.Close()
+				if err != nil {
+					log.Printf("Failed to close listener: %v", err.Error())
+				}
+			}()
 
 			t := time.Now()
 			data_str := convertIntToString(t.Hour())
